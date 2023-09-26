@@ -1,35 +1,61 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  NavLink,
+} from "react-router-dom";
+import Home from "./pages/home";
+import Posts from "./pages/posts";
+import About from "./pages/about";
+import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0)
-
+function Logo() {
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Link to="/" style={{ textDecoration: "none", color: "white" }}>
+      <h1>Vozila.me</h1>
+    </Link>
+  );
 }
 
-export default App
+function Profile() {
+  return <div>Profile Page</div>;
+}
+
+function App() {
+  return (
+    <Router>
+      <div
+        style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+      >
+        <nav>
+          <Logo />
+          <ul className="header-links">
+            <li>
+              <Link to="/posts">Posts</Link>
+            </li>
+            <li>
+              <Link to="/profile">Profile</Link>
+            </li>
+          </ul>
+        </nav>
+
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/posts" element={<Posts />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/about" element={<About />} />
+        </Routes>
+
+        <footer>
+          <Link to="/about">
+            <button>About Us</button>
+          </Link>
+        </footer>
+      </div>
+    </Router>
+  );
+}
+
+export default App;
