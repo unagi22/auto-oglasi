@@ -1,29 +1,11 @@
 import React from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Link,
-  NavLink,
-} from "react-router-dom";
-import Home from "./pages/home";
-import Posts from "./pages/posts";
-import About from "./pages/about";
+import { BrowserRouter as Router, Link } from "react-router-dom";
+import Logo from "./components/logo";
+import Footer from "./components/footer";
+import AppRoutes from "./routes/routes";
 import "./App.css";
 
-function Logo() {
-  return (
-    <Link to="/" style={{ textDecoration: "none", color: "white" }}>
-      <h1>Vozila.me</h1>
-    </Link>
-  );
-}
-
-function Profile() {
-  return <div>Profile Page</div>;
-}
-
-function App() {
+const App = () => {
   return (
     <Router>
       <div
@@ -40,22 +22,11 @@ function App() {
             </li>
           </ul>
         </nav>
-
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/posts" element={<Posts />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/about" element={<About />} />
-        </Routes>
-
-        <footer>
-          <Link to="/about">
-            <button>About Us</button>
-          </Link>
-        </footer>
+        <AppRoutes />
+        <Footer />
       </div>
     </Router>
   );
-}
+};
 
 export default App;

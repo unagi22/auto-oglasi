@@ -1,6 +1,6 @@
 import React from "react";
 
-function About() {
+const About = () => {
   return (
     <div>
       <h2>About Us</h2>
@@ -18,6 +18,6 @@ function About() {
       </p>
     </div>
   );
-}
+};
 
 export default About;
