@@ -1,21 +1,21 @@
-import React from "react";
+import { useEffect, useState } from "react";
+import Api from "../services/Api.js";
 
 const About = () => {
+  const [aboutUsData, setAboutUsData] = useState([]);
+
+  useEffect(() => {
+    const api = new Api("/pages/home");
+    api
+      .get()
+      .then((data) => setAboutUsData(data))
+      .catch((error) => console.error("Error fetching car adverts:", error));
+  }, []);
+
   return (
     <div>
-      <h2>About Us</h2>
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget
-        quam eget ligula pharetra tincidunt nec sit amet turpis. Integer ac odio
-        vel ex faucibus consectetur. Nulla facilisi. Aliquam consequat ex ut
-        diam iaculis ultricies.
-      </p>
-      <p>
-        In hac habitasse platea dictumst. Sed vitae purus nec elit commodo
-        feugiat. Vestibulum luctus, tortor in aliquam bibendum, urna sapien
-        efficitur lorem, a egestas tortor purus sit amet tortor. Sed sodales
-        metus nec tristique bibendum.
-      </p>
+      <h2>{aboutUsData.title}</h2>
+      <p dangerouslySetInnerHTML={{ __html: aboutUsData.content }}></p>
     </div>
   );
 };
