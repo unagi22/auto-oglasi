@@ -1,42 +1,99 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+nav {
+  background-color: #27187e;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+nav ul {
+  list-style: none;
+  display: flex;
+  padding: 0;
+  margin: 0;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+nav li {
+  margin-right: 20px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+nav li:last-child {
+  margin-right: 0;
+}
+
+nav h1 {
+  font-size: 32px;
+}
+
+nav .header-links {
+  display: flex;
+  align-items: center;
+}
+
+nav .header-links a {
+  text-decoration: none;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  background-color: #ff8600;
+  transition: background-color 0.3s;
+}
+
+nav .header-links a:hover {
+  background-color: #f6982c;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.card-container {
+  flex-grow: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 20px;
 }
 
 .card {
-  padding: 2em;
+  background-color: #f1f2f6;
+  border-radius: 10px;
+  margin: 10px;
+  padding: 20px;
+  width: 300px;
+  text-align: center;
+  max-height: 300px;
+  overflow: auto;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s;
 }
 
-.read-the-docs {
-  color: #888;
+.card:hover {
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+footer {
+  text-align: center;
+  background-color: #aeb8fe;
+  padding: 10px;
+  margin-top: auto;
+}
+
+footer button {
+  background-color: #758bfd;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+footer button:hover {
+  background-color: #27187e;
 }
