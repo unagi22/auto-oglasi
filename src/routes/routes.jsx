@@ -4,6 +4,8 @@ import Home from "../pages/home";
 import Posts from "../pages/posts";
 import About from "../pages/about";
 import Profile from "../pages/profile";
+import Login from "../pages/Login"
+import RegistrationForm from "../components/RegistrationForm";
 
 const AppRoutes = () => {
   return (

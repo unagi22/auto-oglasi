@@ -72,6 +72,10 @@ body {
   transition: box-shadow 0.3s;
 }
 
+.card-red {
+  background-color: red;
+}
+
 .card:hover {
   box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
   cursor: pointer;
