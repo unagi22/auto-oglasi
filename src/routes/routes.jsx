@@ -1,11 +1,9 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import Home from "../pages/Home";
-import Posts from "../pages/Posts";
-import About from "../pages/About";
-import Profile from "../pages/Profile";
-import Login from "../pages/Login";
-import RegistrationForm from "../components/RegistrationForm";
+import Home from "../pages/home";
+import Posts from "../pages/posts";
+import About from "../pages/about";
+import Profile from "../pages/profile";
 
 const AppRoutes = () => {
   return (
