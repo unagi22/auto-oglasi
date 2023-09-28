@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Api from "../services/Api.js";
+import Api from "../services/api";
 
 const Posts = () => {
   const [adverts, setAdverts] = useState([]);
