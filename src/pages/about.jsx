@@ -5,9 +5,9 @@ const About = () => {
   const [aboutUsData, setAboutUsData] = useState([]);
 
   useEffect(() => {
-    const api = new Api("/pages/home");
+    const api = new Api();
     api
-      .get()
+      .get("/pages/home")
       .then((data) => setAboutUsData(data))
       .catch((error) => console.error("Error fetching car adverts:", error));
   }, []);
