@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import Api from "../services/Api.js";
+const api = Api.getInstance();
 
 const About = () => {
   const [aboutUsData, setAboutUsData] = useState([]);
 
   useEffect(() => {
-    const api = new Api();
     api
       .get("/pages/home")
       .then((data) => setAboutUsData(data))

@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import Api from "../services/Api.js";
 
+const api = Api.getInstance();
+
 const Profile = () => {
   const [profileData, setProfileData] = useState({});
 
   useEffect(() => {
-    const api = new Api();
     api
       .get("/profile")
       .then((data) => setProfileData(data))

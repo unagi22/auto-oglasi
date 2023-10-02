@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import Api from "../services/Api.js";
+const api = Api.getInstance();
 
 const Posts = () => {
   const [adverts, setAdverts] = useState([]);
 
   useEffect(() => {
-    const api = new Api();
     api
       .get("/car-adverts/all")
       .then((data) => {

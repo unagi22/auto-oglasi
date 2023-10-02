@@ -3,6 +3,9 @@ import Logo from "./components/logo";
 import Footer from "./components/footer";
 import AppRoutes from "./routes/routes";
 import "./App.css";
+import Api from "./services/Api.js";
+
+const api = Api.getInstance();
 
 const App = () => {
   return (
@@ -20,7 +23,7 @@ const App = () => {
               <Link to="/profile">Profile</Link>
             </li>
             <li>
-              <Link to="/admin">Admin</Link>
+              <Link to="/admin">{api.isSuperuser ? 'Admin panel' : 'User data'}</Link>
             </li>
           </ul>
         </nav>

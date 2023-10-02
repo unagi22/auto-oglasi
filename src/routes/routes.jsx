@@ -3,7 +3,7 @@ import Home from "../pages/home";
 import Posts from "../pages/posts";
 import About from "../pages/about";
 import Profile from "../pages/profile";
-import Admin from "../pages/admin.jsx";
+import Admin from "../pages/admin/admin.jsx";
 
 const AppRoutes = () => {
   return (
