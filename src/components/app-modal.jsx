@@ -1,56 +1,47 @@
 import * as React from 'react';
-import Backdrop from '@mui/material/Backdrop';
-import Box from '@mui/material/Box';
-import Modal from '@mui/material/Modal';
-import Fade from '@mui/material/Fade';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
+import Button from '@mui/joy/Button';
+import Modal from '@mui/joy/Modal';
+import ModalClose from '@mui/joy/ModalClose';
+import Typography from '@mui/joy/Typography';
+import Sheet from '@mui/joy/Sheet';
 
-const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: '50%',
-    minHeight: '50%',
-    height: 'auto',
-    borderRadius: '8px',
-    bgcolor: 'background.paper',
-    border: '1px solid #888',
-    boxShadow: 24,
-    p: 4,
-};
-
-export default function AppModal({ buttonText, title, contents }) {
-    const [open, setOpen] = React.useState(false);
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
-
+export default function AppModal({buttonHidden = false, buttonText = 'Open', title = '', contents, handleOpen, handleClose, open}) {
     return (
-        <div>
-            <Button variant="contained" onClick={handleOpen}>{buttonText || 'Open'}</Button>
+        <React.Fragment>
+            {!buttonHidden &&
+                <Button variant="outlined" color="neutral" onClick={handleOpen}>{buttonText}</Button>
+            }
             <Modal
-                aria-labelledby="transition-modal-title"
-                aria-describedby="transition-modal-description"
+                aria-labelledby="modal-title"
+                aria-describedby="modal-desc"
                 open={open}
                 onClose={handleClose}
-                closeAfterTransition
-                slots={{ backdrop: Backdrop }}
-                slotProps={{
-                    backdrop: {
-                        timeout: 500,
-                    },
-                }}
+                sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
             >
-                <Fade in={open}>
-                    <Box sx={style}>
-                        <Typography id="transition-modal-title" variant="h6" component="h2">
-                            {title}
-                        </Typography>
-                        {contents}
-                    </Box>
-                </Fade>
+                <Sheet
+                    variant="outlined"
+                    sx={{
+                        width: '50%',
+                        minHeight: '50%',
+                        borderRadius: 'md',
+                        p: 3,
+                        boxShadow: 'lg',
+                    }}
+                >
+                    <ModalClose variant="plain" sx={{ m: 1 }} />
+                    <Typography
+                        component="h2"
+                        id="modal-title"
+                        level="h4"
+                        textColor="inherit"
+                        fontWeight="lg"
+                        mb={1}
+                    >
+                        {title}
+                    </Typography>
+                    {contents}
+                </Sheet>
             </Modal>
-        </div>
+        </React.Fragment>
     );
 }
