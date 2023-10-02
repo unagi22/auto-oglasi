@@ -1,4 +1,3 @@
-import React from "react";
 import { BrowserRouter as Router, Link } from "react-router-dom";
 import Logo from "./components/logo";
 import Footer from "./components/footer";
@@ -22,6 +21,9 @@ const App = () => {
             </li>
             <li>
               <Link to="/login">Login</Link>
+            </li>
+            <li>
+              <Link to="/admin">Admin</Link>
             </li>
           </ul>
         </nav>

@@ -5,9 +5,9 @@ const Profile = () => {
   const [profileData, setProfileData] = useState({});
 
   useEffect(() => {
-    const api = new Api("/profile");
+    const api = new Api();
     api
-      .get()
+      .get("/profile")
       .then((data) => setProfileData(data))
       .catch((error) => console.error("Error fetching car adverts:", error));
   }, []);

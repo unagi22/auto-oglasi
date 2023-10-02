@@ -5,9 +5,9 @@ const Posts = () => {
   const [adverts, setAdverts] = useState([]);
 
   useEffect(() => {
-    const api = new Api("/car-adverts/all");
+    const api = new Api();
     api
-      .get()
+      .get("/car-adverts/all")
       .then((data) => {
         setAdverts(data.results);
       })
