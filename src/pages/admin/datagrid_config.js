@@ -1,5 +1,13 @@
+import dayjs from "dayjs";
+
 export const carConfigColumns = [
     { field: 'id', headerName: 'ID', width: 70 },
+    {
+        field: 'model',
+        headerName: 'Model',
+        valueGetter: (params) => params.row.model.manufacturer.name + ' ' + params.row.model.name,
+        width: 120,
+    },
     { field: 'vin', headerName: 'VIN', type: 'number', width: 90 },
     { field: 'cubic_capacity', headerName: 'Cubic capacity', type: 'number', width: 110 },
     { field: 'door_count', headerName: 'Door count', type: 'number', width: 90 },
@@ -28,6 +36,7 @@ export const carConfigColumns = [
     {
         field: 'registration_date',
         headerName: 'Registration date',
+        valueGetter: (params) => dayjs(params.row.registration_date).format('DD/MM/YYYY'),
         width: 130,
     },
     {
@@ -49,12 +58,6 @@ export const carConfigColumns = [
         description: 'Gearbox acronym',
         valueGetter: (params) => params.row.gearbox.code,
         width: 80,
-    },
-    {
-        field: 'model',
-        headerName: 'Model',
-        valueGetter: (params) => params.row.model.name,
-        width: 120,
     },
 ];
 
