@@ -4,11 +4,12 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import Typography from "@mui/material/Typography";
 import {useEffect, useState} from "react";
+import dayjs from "dayjs";
 
-export default function BasicDatePicker({changeHandler, clearHandler, title = 'Date picker', helperText = ''}) {
+export default function BasicDatePicker({dateValue = null, changeHandler, clearHandler, title = 'Date picker', helperText = ''}) {
     const [errorPresent, setErrorPresent] = useState(false)
+
     useEffect(() => {
-        console.log('helperText', helperText)
         setErrorPresent(!!helperText)
     }, [helperText]);
 
@@ -22,9 +23,10 @@ export default function BasicDatePicker({changeHandler, clearHandler, title = 'D
                 slotProps={{
                     textField: { size: 'small', fullWidth: true, helperText: helperText },
                     field: { clearable: true, onClear: () => clearHandler() },
-                    sx: { }
                 }}
                 format="DD/MM/YYYY"
+                value={dateValue && dayjs(dateValue)}
+                maxDate={dayjs()}
                 onChange={(newValue) => changeHandler(newValue)}
                 sx={{
                     '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { borderColor: errorPresent ? 'error.main' : 'rgba(0, 0, 0, 0.23)' }, // error.main
