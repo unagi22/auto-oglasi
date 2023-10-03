@@ -1,8 +1,7 @@
 import { styled } from '@mui/material/styles';
 import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
-import TagFacesIcon from '@mui/icons-material/TagFaces';
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/joy/Button";
 
@@ -10,11 +9,15 @@ const ListItem = styled('li')(({ theme }) => ({
     margin: theme.spacing(0.5),
 }));
 
-export default function ChipsArray({chipsList, setSelectedFeatureIds}) {
+export default function ChipsArray({chipsList, setSelectedIds}) {
     const [chipData, setChipData] = useState(chipsList);
 
+    useEffect(() => {
+        updateSelectedIds(chipData)
+    }, []);
+
     const updateSelectedIds = (chipData) => {
-        setSelectedFeatureIds(chipData.filter(item => item.selected).map(item => item.id))
+        setSelectedIds(chipData.filter(item => item.selected).map(item => item.id))
     }
 
     const handleSelectDeselectAll = (selectValue) => {
