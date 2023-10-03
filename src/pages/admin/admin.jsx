@@ -15,6 +15,10 @@ import {DataGrid, GridActionsCellItem} from '@mui/x-data-grid';
 import {carAdvertConfigColumns, carConfigColumns} from "./datagrid_config.js";
 import {useEffect, useState} from "react";
 import Box from '@mui/material/Box';
+import AlertDialog from "../../components/alert-dialog.jsx";
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import {isEmpty} from "lodash";
+import AppAlert from "../../components/app-alert.jsx";
 
 const api = Api.getInstance();
 
@@ -56,12 +60,18 @@ const Admin = () => {
     const [carAdvertModalOpen, setCarAdvertModalOpen] = useState(false);
     const [carModalOpen, setCarModalOpen] = useState(false);
     const [editCarAdvertModalOpen, setEditCarAdvertModalOpen] = useState(false);
+    const [deleteCarAdvertModalOpen, setDeleteCarAdvertModalOpen] = useState(false);
+    const [deleteCarModalOpen, setDeleteCarModalOpen] = useState(false);
     const [editCarModalOpen, setEditCarModalOpen] = useState(false);
     const [cars, setCars] = useState([]);
     const [carAdverts, setCarAdverts] = useState([]);
     const [carColumns, setCarColumns] = useState(carConfigColumns);
     const [carAdvertColumns, setCarAdvertColumns] = useState(carAdvertConfigColumns);
     const [editCarAdvertItem, setEditCarAdvertItem] = useState({});
+    const [editCarItem, setEditCarItem] = useState(null);
+    const [deleteCarAdvertItem, setDeleteCarAdvertItem] = useState({});
+    const [deleteCarItem, setDeleteCarItem] = useState({});
+    const [alerts, setAlerts] = useState([]);
 
     const carAdvertActions = (params) => {
         const isActive = params.row.is_active;
@@ -80,7 +90,10 @@ const Admin = () => {
                 key="delete"
                 icon={<DeleteIcon />}
                 label="Delete"
-                onClick={() => (deleteCarAdvert(params.row.id))}
+                onClick={() => {
+                    setDeleteCarAdvertItem(params.row);
+                    openDeleteCarAdvertModal();
+                }}
                 showInMenu
             />,
         ];
@@ -119,14 +132,20 @@ const Admin = () => {
                 key="edit"
                 icon={<EditIcon/>}
                 label="Edit"
-                onClick={() => (console.log('edit'))}
+                onClick={async () => {
+                    await fetchSingleCar(params.row.id)
+                    openEditCarModal();
+                }}
                 showInMenu
             />,
             <GridActionsCellItem
                 key="delete"
                 icon={<DeleteIcon/>}
                 label="Delete"
-                onClick={() => (deleteCar(params.row.id))}
+                onClick={() => {
+                    setDeleteCarItem(params.row);
+                    openDeleteCarModal();
+                }}
                 showInMenu
             />,
         ];
@@ -149,8 +168,68 @@ const Admin = () => {
     const closeCarAdvertsModal = () => (setCarAdvertModalOpen(false));
     const openEditCarAdvertModal = () => (setEditCarAdvertModalOpen(true));
     const closeEditCarAdvertModal = () => (setEditCarAdvertModalOpen(false));
+
+    const openDeleteCarAdvertModal = () => (setDeleteCarAdvertModalOpen(true));
+    const closeDeleteCarAdvertModal = () => (setDeleteCarAdvertModalOpen(false));
+
+    const openDeleteCarModal = () => (setDeleteCarModalOpen(true));
+    const closeDeleteCarModal = () => (setDeleteCarModalOpen(false));
     const openEditCarModal = () => (setEditCarModalOpen(true));
     const closeEditCarModal = () => (setEditCarModalOpen(false));
+
+    const getDeleteCarAdvertText = () => {
+        if (isEmpty(deleteCarAdvertItem)) return '';
+
+        const car = deleteCarAdvertItem.car;
+        const carFormatted = `${car.model.manufacturer.name} ${car.model.name} (${car.vin})`;
+        let text = `You are about to delete the car advert for the "${carFormatted}".\n`
+        text += 'This action is permanent, are you sure you wish to continue?';
+
+        return text;
+    }
+
+    const getDeleteCarText = () => {
+        if (isEmpty(deleteCarItem)) return '';
+
+        const car = deleteCarItem;
+        const carFormatted = `${car.model.manufacturer.name} ${car.model.name} (${car.vin})`;
+        let text = `You are about to delete this car: "${carFormatted}".\n`
+        text += 'This action is permanent, are you sure you wish to continue?';
+
+        return text;
+    }
+
+    const fetchSingleCar = (carId) => {
+        api.get(`/cars/${carId}`)
+            .then((data) => {
+                setEditCarItem(data)
+            })
+            .catch((error) => (console.error("Error fetching the car:", error)))
+    }
+
+    const handleCreateCarAdvertSuccess = () => {
+        closeCarAdvertsModal();
+        fetchCarAdverts();
+        setAlerts(['Car advert successfully created!', ...alerts]);
+    }
+
+    const handleCreateCarSuccess = () => {
+        closeCarModal();
+        fetchCars();
+        setAlerts(['Car successfully created!', ...alerts]);
+    }
+
+    const handleEditCarAdvertSuccess = () => {
+        closeEditCarAdvertModal();
+        fetchCarAdverts();
+        setAlerts(['Car advert successfully updated!', ...alerts]);
+    }
+
+    const handleEditCarSuccess = () => {
+        closeEditCarModal();
+        fetchCars();
+        setAlerts(['Car successfully updated!', ...alerts]);
+    }
 
     function fetchCars() {
         setCarsLoading(true);
@@ -178,7 +257,6 @@ const Admin = () => {
         api.get(url)
             .then((data) => {
                 setCarAdvertsRowCount(data.count);
-                console.log('data.results', data)
                 setCarAdverts(data.results);
             })
             .catch((error) => (console.error("Error fetching car adverts:", error)))
@@ -191,6 +269,7 @@ const Admin = () => {
         api.post(`/car-adverts/${carAdvertId}/activate/`)
             .then(() => {
                 fetchCarAdverts()
+                setAlerts(['Car advert successfully activated', ...alerts])
             })
             .catch((error) => (console.error("Error activating car advert:", error)));
     }
@@ -199,19 +278,38 @@ const Admin = () => {
         api.post(`/car-adverts/${carAdvertId}/deactivate/`)
             .then(() => {
                 fetchCarAdverts()
+                setAlerts(['Car advert successfully deactivated', ...alerts])
             })
             .catch((error) => (console.error("Error deactivating car advert:", error)));
     }
 
+    function deleteCarAdvertConfirmed () {
+        closeDeleteCarAdvertModal();
+        deleteCarAdvert(deleteCarAdvertItem.id);
+        setDeleteCarAdvertItem({});
+    }
+
+    function deleteCarConfirmed () {
+        closeDeleteCarModal();
+        deleteCar(deleteCarItem.id);
+        setDeleteCarItem({});
+    }
+
     function deleteCarAdvert(carAdvertId) {
         api.delete(`/car-adverts/${carAdvertId}/`)
-            .then(() => {fetchCarAdverts()})
+            .then(() => {
+                fetchCarAdverts();
+                setAlerts(['Car advert successfully deleted', ...alerts]);
+            })
             .catch((error) => (console.error("Error deleting car advert:", error)));
     }
 
     function deleteCar(carId) {
         api.delete(`/cars/${carId}/`)
-            .then(() => {fetchCars()})
+            .then(() => {
+                fetchCars();
+                setAlerts(['Car successfully deleted', ...alerts]);
+            })
             .catch((error) => (console.error("Error deleting car:", error)));
     }
 
@@ -224,6 +322,16 @@ const Admin = () => {
         fetchCarAdverts();
         fetchCars();
     }, []);
+
+    useEffect(() => {
+        if (alerts.length > 0 ) {
+            setTimeout(() => {
+                const alertsCopy = [...alerts];
+                alertsCopy.shift();
+                setAlerts(alertsCopy);
+            }, 4000)
+        }
+    }, [alerts]);
 
     const [carsRowCountState, setCarsRowCountState] = useState(carsRowCount);
     const [carAdvertsRowCountState, setCarAdvertsRowCountState] = useState(carsRowCount);
@@ -260,7 +368,8 @@ const Admin = () => {
     }, [carsPaginationModel]);
 
     return (
-        <div style={{ width: '90%', margin: '2rem auto' }}>
+        <div style={{ width: '90%', margin: '2rem auto', position: 'relative' }}>
+            {alerts.length > 0 && <AppAlert message={alerts[0]} />}
             <Typography variant="h3" gutterBottom align="center">
                 {api.isSuperuser ? 'Admin panel' : 'User data'}
             </Typography>
@@ -280,7 +389,7 @@ const Admin = () => {
                         open={carAdvertModalOpen}
                         handleOpen={openCarAdvertsModal}
                         handleClose={closeCarAdvertsModal}
-                        contents={<CarAdvertFormData successCallable={closeCarAdvertsModal} />}
+                        contents={<CarAdvertFormData successCallable={handleCreateCarAdvertSuccess} />}
                     />
                 </header>
                 <div className={styles.pageContainer}>
@@ -295,6 +404,24 @@ const Admin = () => {
                         rowCount={carAdvertsRowCount}
                     />
                 </div>
+                <AlertDialog
+                    title="Delete car advert?"
+                    text={getDeleteCarAdvertText()}
+                    icon={<DeleteForeverIcon />}
+                    open={deleteCarAdvertModalOpen}
+                    handleOpen={openDeleteCarAdvertModal}
+                    handleClose={closeDeleteCarAdvertModal}
+                    handleConfirm={deleteCarAdvertConfirmed}
+                />
+                <AppModal
+                    buttonHidden
+                    buttonText="Edit car advert"
+                    title="Edit car advert"
+                    open={editCarAdvertModalOpen}
+                    handleOpen={openEditCarAdvertModal}
+                    handleClose={closeEditCarAdvertModal}
+                    contents={<CarAdvertFormData editItem={editCarAdvertItem} successCallable={handleEditCarAdvertSuccess} />}
+                />
             </CustomTabPanel>
             <CustomTabPanel value={tabValue} index={1}>
                 <header className={styles.header}>
@@ -304,7 +431,7 @@ const Admin = () => {
                         open={carModalOpen}
                         handleOpen={openCarModal}
                         handleClose={closeCarModal}
-                        contents={<CarFormData successCallable={closeCarModal} />}
+                        contents={<CarFormData successCallable={handleCreateCarSuccess} />}
                     />
                 </header>
                 <div className={styles.pageContainer}>
@@ -321,14 +448,14 @@ const Admin = () => {
                 </div>
             </CustomTabPanel>
 
-            <AppModal
-                buttonHidden
-                buttonText="Edit car advert"
-                title="Edit car advert"
-                open={editCarAdvertModalOpen}
-                handleOpen={openEditCarAdvertModal}
-                handleClose={closeEditCarAdvertModal}
-                contents={<CarAdvertFormData editItem={editCarAdvertItem} successCallable={closeEditCarAdvertModal} />}
+            <AlertDialog
+                title="Delete car?"
+                text={getDeleteCarText()}
+                icon={<DeleteForeverIcon />}
+                open={deleteCarModalOpen}
+                handleOpen={openDeleteCarModal}
+                handleClose={closeDeleteCarModal}
+                handleConfirm={deleteCarConfirmed}
             />
             <AppModal
                 buttonHidden
@@ -337,7 +464,7 @@ const Admin = () => {
                 open={editCarModalOpen}
                 handleOpen={openEditCarModal}
                 handleClose={closeEditCarModal}
-                contents={<CarFormData successCallable={closeEditCarModal} />}
+                contents={<CarFormData editItem={editCarItem} successCallable={handleEditCarSuccess} />}
             />
         </div>
     );
