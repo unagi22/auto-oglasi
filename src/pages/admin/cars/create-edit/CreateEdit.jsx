@@ -1,15 +1,15 @@
 import {Button, FormControl, FormGroup, InputLabel, MenuItem, Select, TextField} from "@mui/material";
-import BasicDatePicker from "../../components/basic-date-picker.jsx";
-import ImageUploader from "../../components/ImageUploader.jsx";
+import BasicDatePicker from "../../../../components/basic-date-picker.jsx";
+import ImageUploader from "../../../../components/ImageUploader.jsx";
 import {isNil} from "lodash";
 import {useEffect, useState} from "react";
-import Api from "../../services/Api.js";
+import Api from "../../../../services/Api.js";
 import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import ChipsArray from "../../components/chips-array.jsx";
+import ChipsArray from "../../../../components/chips-array.jsx";
 import FormHelperText from '@mui/material/FormHelperText';
-import {tabColumnsObj} from "./car_form_config.js";
+import {tabColumnsObj} from "./config.js";
 
 const api = Api.getInstance();
 

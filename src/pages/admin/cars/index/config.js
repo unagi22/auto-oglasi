@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 
-export const carConfigColumns = [
+export const dataGridColumnsConfig = [
     { field: 'id', headerName: 'ID', width: 70 },
     {
         field: 'model',
@@ -11,7 +11,7 @@ export const carConfigColumns = [
     { field: 'vin', headerName: 'VIN', type: 'number', width: 90 },
     { field: 'cubic_capacity', headerName: 'Cubic capacity', type: 'number', width: 110 },
     { field: 'door_count', headerName: 'Door count', type: 'number', width: 90 },
-    { field: 'seat_number', headerName: 'Seat number', type: 'number', width: 100 },
+    { field: 'seat_number', headerName: 'Seat number', type: 'number', width: 90 },
     {
         field: 'license_plate',
         headerName: 'License plate',
@@ -59,26 +59,4 @@ export const carConfigColumns = [
         valueGetter: (params) => params.row.gearbox.code,
         width: 80,
     },
-];
-
-export const carAdvertConfigColumns = [
-    { field: 'id', headerName: 'ID', width: 70 },
-    {
-        field: 'car',
-        headerName: 'Car',
-        valueGetter: (params) => {
-            const car = params.row.car;
-            return car.model.manufacturer.name + ' ' + car.model.name + ' ' + car.manufacture_year;
-        },
-        width: 180,
-    },
-    { field: 'title', headerName: 'Title', width: 120 },
-    { field: 'description', headerName: 'Description', width: 300 },
-    {
-        field: 'price',
-        headerName: 'Price',
-        valueGetter: (params) => parseInt(params.row.price) + ' ' + params.row.currency.name,
-        width: 100,
-    },
-    { field: 'is_active', headerName: 'Active', type: 'boolean', width: 100 },
 ];

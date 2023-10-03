@@ -1,13 +1,13 @@
 import {Button, FormControl, FormControlLabel, FormGroup, InputLabel, MenuItem, Select, TextField} from "@mui/material";
-import ImageUploader from "../../components/ImageUploader.jsx";
+import ImageUploader from "../../../../components/ImageUploader.jsx";
 import {isNil} from "lodash";
 import {useEffect, useState} from "react";
-import Api from "../../services/Api.js";
+import Api from "../../../../services/Api.js";
 import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import FormHelperText from '@mui/material/FormHelperText';
-import {tabColumnsObj} from "./car_advert_form_config.js";
+import {tabColumnsObj} from "./config.js";
 import Typography from "@mui/joy/Typography";
 import {Checkbox} from "@mui/joy";
 
