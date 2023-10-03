@@ -1,8 +1,9 @@
-import { useRef } from 'react';
+import {useRef} from 'react';
 import Button from "@mui/material/Button";
 import HighlightOffOutlinedIcon from '@mui/icons-material/HighlightOffOutlined';
+import Box from "@mui/material/Box";
 
-function ImageUploader({ buttonText, handleOpen, images, setImages, multiple = false }) {
+function ImageUploader({ buttonText, handleOpen, existingImages = null, handleUpdateExistingImages = null, images, setImages, multiple = false }) {
     const inputRef = useRef(null);
 
     const handleImageChange = (e) => {
@@ -22,14 +23,45 @@ function ImageUploader({ buttonText, handleOpen, images, setImages, multiple = f
         setImages(oldImages);
     }
 
+    function handleRemoveImage(index) {
+        removeImage(index)
+    }
+
+    function handleRemoveExistingImage(index) {
+        const imagesUpdated = [...existingImages];
+        imagesUpdated.splice(index, 1);
+        handleUpdateExistingImages(imagesUpdated);
+    }
+
     return (
-        <div>
+        <Box sx={{width: '100%'}}>
             <Button variant="contained" onClick={openFilePicker}>{buttonText || 'Open'}</Button>
             {/* Input to upload single or multiple images */}
-            <input ref={inputRef} style={{ display: 'none' }} type="file" accept="image/*" multiple={multiple} onChange={handleImageChange} />
+            <input
+                ref={inputRef}
+                style={{ display: 'none' }}
+                type="file" accept="image/*"
+                multiple={multiple}
+                onChange={handleImageChange}
+            />
 
-            {/* Display the selected images */}
-            <div style={{ display: 'flex', marginTop: '1rem' }}>
+            {existingImages && <Box sx={{mt: 1, display: 'flex'}}>
+                {existingImages.map((imageObject, index) => (
+                    <div key={index} style={{position: 'relative'}}>
+                        <img
+                            src={imageObject.image}
+                            alt="User-selected"
+                            style={{ width: '100px', margin: '8px' }}
+                        />
+                        <HighlightOffOutlinedIcon
+                            style={{ position: 'absolute', right: '0', top: '0', color: 'red', cursor: 'pointer', 'background': '#fff', borderRadius: '50%' }}
+                            onClick={() => (handleRemoveExistingImage(index))}
+                        />
+                    </div>
+                ))}
+            </Box>}
+
+            <Box sx={{mt: 1, display: 'flex'}}>
                 {images.map((image, index) => (
                     <div key={index} style={{position: 'relative'}}>
                         <img
@@ -39,12 +71,16 @@ function ImageUploader({ buttonText, handleOpen, images, setImages, multiple = f
                         />
                         <HighlightOffOutlinedIcon
                             style={{ position: 'absolute', right: '0', top: '0', color: 'red', cursor: 'pointer', 'background': '#fff', borderRadius: '50%' }}
-                            onClick={() => (removeImage(index))}
+                            onClick={() => (handleRemoveImage(index))}
                         />
                     </div>
                 ))}
-            </div>
-        </div>
+            </Box>
+            {/* Display the selected images */}
+            <Box sx={{ display: 'flex', mt: 1 }}>
+
+            </Box>
+        </Box>
     );
 }
 
