@@ -22,11 +22,11 @@ const CarAdvertFormData = ({editItem = null, successCallable}) => {
     const [description, setDescription] = useState('');
     const [price, setPrice] = useState('');
     const [image, setImage] = useState('');
-    const [presentImage, setPresentImage] = useState('');
     const [images, setImages] = useState([]);
     const [validationErrors, setValidationErrors] = useState({});
     const [freeCarsChecked, setFreeCarsChecked] = useState(true);
     const [tabValue, setTabValue] = useState(0);
+    const [existingImages, setExistingImages] = useState([]);
 
     const handleTitleChange = (event) => (setTitle(event.target.value));
     const handleDescriptionChange = (event) => (setDescription(event.target.value));
@@ -35,6 +35,8 @@ const CarAdvertFormData = ({editItem = null, successCallable}) => {
     const handleCarChange = (event) => (setCar(event.target.value));
 
     const getValidationErrorText = (key) => (validationErrors[key] && validationErrors[key][0] || '');
+
+    const editMode = () => (!!editItem);
 
     const getFormData = () => {
         const payload = {
@@ -56,6 +58,11 @@ const CarAdvertFormData = ({editItem = null, successCallable}) => {
         if (images[0]) {
             formData.append('image', images[0]);
         }
+        if (editMode() && existingImages.length === 0) {
+            formData.append('image', null);
+        }
+
+        console.log('formData', formData)
 
         return formData;
     };
@@ -63,31 +70,64 @@ const CarAdvertFormData = ({editItem = null, successCallable}) => {
     const handleSubmit = (event) => {
         event.preventDefault();
 
-        api.post('/car-adverts/', getFormData())
-            .then(async (response) => {
-                const responseData = await response.json();
-                if (response.status === 201) {
-                    successCallable()
-                    console.log("Car data successfully added");
-                } else if (response.status === 400) {
-                    setValidationErrors(responseData)
-                    console.error("Error adding car data:", responseData);
-                }
-            })
-            .catch(error => {
-                console.log('error data', error)
-            });
+        if (editMode()) {
+            api.patch(`/car-adverts/${editItem.id}/`, getFormData())
+                .then(async (response) => {
+                    const responseData = await response.json();
+                    if (response.status === 200) {
+                        successCallable()
+                        console.log("Car advert data successfully updated", response.data);
+                    } else if (response.status === 400) {
+                        setValidationErrors(responseData)
+                        console.error("Error adding car data:", responseData);
+                    }
+                })
+                .catch(error => {
+                    console.log('error data', error)
+                });
+        } else {
+            api.post('/car-adverts/', getFormData())
+                .then(async (response) => {
+                    const responseData = await response.json();
+                    if (response.status === 201) {
+                        successCallable()
+                        console.log("Car advert data successfully added");
+                    } else if (response.status === 400) {
+                        setValidationErrors(responseData)
+                        console.error("Error adding car data:", responseData);
+                    }
+                })
+                .catch(error => {
+                    console.log('error data', error)
+                });
+        }
+    }
+
+    const handleUpdateExistingImages = (newImages) => {
+        setExistingImages(newImages);
+    };
+
+    const handleSetImages = (images) => {
+        if (images.length > 0) {
+            setExistingImages([]);
+            setImages(images);
+        } else {
+            setImages([]);
+        }
+    };
+
+    function setEditItemValues() {
+        setTitle(editItem.title);
+        setDescription(editItem.description);
+        setPrice(editItem.price);
+        setCurrency(editItem.currency.id);
+        setCar(editItem.car.id);
+        setExistingImages([{id: editItem.id, image: editItem.image}]);
     }
 
     useEffect(() => {
-        console.log(editItem, 'editItem')
-        if (editItem) {
-            setTitle(editItem.title);
-            setDescription(editItem.description);
-            setPrice(editItem.price);
-            setPresentImage(editItem.image);
-            setCurrency(editItem.currency.id);
-            setCar(editItem.car.id);
+        if (editMode()) {
+            setEditItemValues()
         }
         fetchRelatingData()
     }, []);
@@ -97,10 +137,14 @@ const CarAdvertFormData = ({editItem = null, successCallable}) => {
     }, [freeCarsChecked]);
 
     const fetchCars = () => {
-        let url ='/cars/?all_data=true';
+        let url = '/cars/?all_data=true';
         if (freeCarsChecked) {
             url += '&free_cars=true';
+            if (editMode()) {
+                url += `&include_ids=${editItem.car.id}`
+            }
         }
+
         api.get(url)
             .then((data) => {
                 setCars(data)
@@ -266,8 +310,10 @@ const CarAdvertFormData = ({editItem = null, successCallable}) => {
                             labelId="car-advert-images"
                             buttonText="Upload car advert image"
                             presentImage
+                            existingImages={existingImages}
+                            handleUpdateExistingImages={handleUpdateExistingImages}
                             images={images}
-                            setImages={setImages}
+                            setImages={handleSetImages}
                         />
                     </FormControl>
                     {'image' in validationErrors &&
