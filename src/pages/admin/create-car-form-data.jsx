@@ -13,7 +13,7 @@ import {tabColumnsObj} from "./car_form_config.js";
 
 const api = Api.getInstance();
 
-const CarFormData = ({successCallable}) => {
+const CarFormData = ({editItem = null, successCallable}) => {
     const [bodyTypes, setBodyTypes] = useState([]);
     const [carColors, setCarColors] = useState([]);
     const [fuelTypes, setFuelTypes] = useState([]);
@@ -22,7 +22,8 @@ const CarFormData = ({successCallable}) => {
     const [models, setModels] = useState([]);
     const [carImages, setCarImages] = useState([]);
     const [features, setFeatures] = useState([]);
-    const [featureIds, setSelectedFeatureIds] = useState([]);
+    const [featureIds, setFeatureIds] = useState([]);
+    // const [initialFeatureIds, setInitialFeatureIds] = useState([]);
     const [bodyType, setBodyType] = useState(0);
     const [color, setColor] = useState(0);
     const [fuelType, setFuelType] = useState(0);
@@ -30,6 +31,7 @@ const CarFormData = ({successCallable}) => {
     const [manufacturer, setManufacturer] = useState(0);
     const [model, setModel] = useState(0);
     const [images, setImages] = useState([]);
+    const [existingImages, setExistingImages] = useState([]);
     const [validationErrors, setValidationErrors] = useState({});
     const [manufactureYear, setManufactureYear] = useState('');
     const [vin, setVin] = useState('');
@@ -41,6 +43,9 @@ const CarFormData = ({successCallable}) => {
     const [seatNumber, setSeatNumber] = useState('');
     const [licensePlate, setLicensePlate] = useState('');
     const [tabValue, setTabValue] = useState(0);
+    const [featuresFetched, setFeaturesFetched] = useState(false);
+
+    const editMode = () => (!!editItem);
 
     const handleManufactureYearChange = (event) => {
         setManufactureYear(event.target.value)
@@ -68,9 +73,10 @@ const CarFormData = ({successCallable}) => {
     const handleManufacturerChange = (event) => {
         const manufacturerId = event.target.value
         setManufacturer(manufacturerId);
-        api.get(`/manufacturers/${manufacturerId}/models`)
-            .then((data) => (setModels(data)))
-            .catch((error) => (console.error("Error fetching car body types:", error)));
+    };
+
+    const handleUpdateExistingImages = (newImages) => {
+        setExistingImages(newImages);
     };
 
     const getValidationErrorText = (key) => (validationErrors[key] && validationErrors[key][0] || '');
@@ -86,11 +92,11 @@ const CarFormData = ({successCallable}) => {
             seat_number: seatNumber,
             license_plate: licensePlate,
             registration_date: registrationDate,
-            body_type: bodyType,
-            color,
-            fuel_type: fuelType,
-            gearbox,
-            model,
+            body_type_id: bodyType,
+            color_id: color,
+            fuel_type_id: fuelType,
+            gearbox_id: gearbox,
+            model_id: model,
         };
 
         const formData = new FormData();
@@ -102,33 +108,107 @@ const CarFormData = ({successCallable}) => {
         }
 
         featureIds.forEach(featureId => (formData.append('feature_ids', featureId)));
+
+        if (editMode()) {
+            existingImages.forEach(image => formData.append('image_ids', image.id));
+        }
         images.forEach(imageFile => (formData.append('images_data', imageFile)));
 
         return formData;
     };
 
+    const setEditItemValues = () => {
+        setManufactureYear(editItem.manufacture_year);
+        setVin(editItem.vin);
+        setMileage(editItem.mileage);
+        setCubicCapacity(editItem.cubic_capacity);
+        setPower(editItem.power);
+        setDoorCount(editItem.door_count);
+        setSeatNumber(editItem.seat_number);
+        setLicensePlate(editItem.license_plate);
+        setRegistrationDate(editItem.registration_date);
+        setBodyType(editItem.body_type.id);
+        setColor(editItem.color.id);
+        setFuelType(editItem.fuel_type.id);
+        setGearbox(editItem.gearbox.id);
+        setManufacturer(editItem.model?.manufacturer?.id);
+        setModel(editItem.model.id);
+
+        const featureIdsSet = new Set(editItem.features.map(feature => feature.id));
+
+        const selectedFeatures = features.map(feature => {
+            feature.selected = featureIdsSet.has(feature.id);
+            return feature;
+        });
+        setFeatures(selectedFeatures);
+
+        setExistingImages(editItem.images)
+    };
+
     const handleSubmit = (event) => {
         event.preventDefault();
 
-        api.post('/cars/', getFormData())
-            .then(async (response) => {
-                const responseData = await response.json();
-                if (response.status === 201) {
-                    console.log("Car data successfully added");
-                    successCallable()
-                } else if (response.status === 400) {
-                    setValidationErrors(responseData)
-                    console.error("Error adding car data:", responseData);
-                }
+        if (editMode()) {
+            api.patch(`/cars/${editItem.id}/`, getFormData())
+                .then(async (response) => {
+                    const responseData = await response.json();
+                    if (response.status === 200) {
+                        successCallable()
+                        console.log("Car data successfully updated", response.data);
+                    } else if (response.status === 400) {
+                        setValidationErrors(responseData)
+                        console.error("Error adding car data:", responseData);
+                    }
+                })
+                .catch(error => {
+                    console.log('error data', error)
+                });
+        } else {
+            api.post('/cars/', getFormData())
+                .then(async (response) => {
+                    const responseData = await response.json();
+                    if (response.status === 201) {
+                        console.log("Car data successfully added");
+                        successCallable()
+                    } else if (response.status === 400) {
+                        setValidationErrors(responseData)
+                        console.error("Error adding car data:", responseData);
+                    }
+                })
+                .catch(error => {
+                    console.log('error data', error)
+                });
+        }
+    }
+
+    function fetchFeatures() {
+        api.get('/car-features/')
+            .then((data) => {
+                setFeatures(data.map((feature, index) => ({key: index, id: feature.id, label: feature.name, selected: false})))
+                setFeaturesFetched(true);
             })
-            .catch(error => {
-                console.log('error data', error)
-            });
+            .catch((error) => (console.error("Error fetching manufacturers:", error)));
     }
 
     useEffect(() => {
-        fetchRelatingData()
-    }, []);
+        const fetchDataAndSetValues = async () => {
+            await fetchRelatingData();
+
+            if (editMode()) {
+                setEditItemValues();
+            }
+        };
+
+        fetchDataAndSetValues();
+    }, [editItem]);
+
+    useEffect(() => {
+        if (manufacturer) {
+            api.get(`/manufacturers/${manufacturer}/models`)
+                .then((data) => (setModels(data)))
+                .catch((error) => (console.error("Error fetching car body types:", error)));
+        }
+    }, [manufacturer]);
 
     const fetchRelatingData = () => {
         api.get('/car-body-types/')
@@ -146,11 +226,10 @@ const CarFormData = ({successCallable}) => {
         api.get('/car-manufacturers/')
             .then((data) => (setManufacturers(data)))
             .catch((error) => (console.error("Error fetching manufacturers:", error)));
-        api.get('/car-features/')
-            .then((data) => {
-                setFeatures(data.map((feature, index) => ({key: index, id: feature.id, label: feature.name, selected: false})))
-            })
-            .catch((error) => (console.error("Error fetching manufacturers:", error)));
+
+        if (!featuresFetched) {
+            fetchFeatures()
+        }
     };
 
     const handleTabChange = (event, newValue) => {
@@ -164,26 +243,6 @@ const CarFormData = ({successCallable}) => {
             'aria-controls': `simple-tabpanel-${index}`,
             sx: { color: validationErrorsInTab(index) ? 'error.main' : 'currentValue'}
         };
-    }
-
-    function CustomTabPanel(props) {
-        const { children, value, index, ...other } = props;
-
-        return (
-            <div
-                role="tabpanel"
-                hidden={value !== index}
-                id={`simple-tabpanel-${index}`}
-                aria-labelledby={`simple-tab-${index}`}
-                {...other}
-            >
-                {value === index && (
-                    <Box sx={{ p: 3 }}>
-                        {children}
-                    </Box>
-                )}
-            </div>
-        );
     }
 
     function validationErrorsInTab(tabIndex) {
@@ -301,6 +360,7 @@ const CarFormData = ({successCallable}) => {
 
                         <FormControl error={true}>
                             <BasicDatePicker title="Registration date"
+                                             dateValue={editItem?.registration_date || null}
                                              changeHandler={handleRegistrationDateChange}
                                              clearHandler={handleClearRegistrationDate}
                                              helperText={'registration_date' in validationErrors ? getValidationErrorText('registration_date') : null} />
@@ -311,7 +371,7 @@ const CarFormData = ({successCallable}) => {
             {tabValue === 1 && (
                 <Box sx={{ p: 3, my: 1 }}>
                     <FormGroup sx={{ mb: 2 }}>
-                        <FormControl sx={{ mt: 2 }} error={'body_type' in validationErrors}>
+                        <FormControl sx={{ mt: 2 }} error={'body_type_id' in validationErrors}>
                             <InputLabel id="body-type-label">
                                 Body type
                             </InputLabel>
@@ -329,11 +389,11 @@ const CarFormData = ({successCallable}) => {
                                 </MenuItem>
                                 {bodyTypes.map(type => (<MenuItem key={type.id} value={type.id}>{type.name}</MenuItem>))}
                             </Select>
-                            {'body_type' in validationErrors &&
-                                <FormHelperText error>{validationErrors.body_type}</FormHelperText>}
+                            {'body_type_id' in validationErrors &&
+                                <FormHelperText error>{validationErrors.body_type_id}</FormHelperText>}
                         </FormControl>
 
-                        <FormControl sx={{ mt: 2 }} error={'color' in validationErrors}>
+                        <FormControl sx={{ mt: 2 }} error={'color_id' in validationErrors}>
                             <InputLabel id="color-label">
                                 Color
                             </InputLabel>
@@ -354,12 +414,12 @@ const CarFormData = ({successCallable}) => {
                                     </MenuItem>
                                 ))}
                             </Select>
-                            {'color' in validationErrors &&
-                                <FormHelperText error>{validationErrors.color}</FormHelperText>
+                            {'color_id' in validationErrors &&
+                                <FormHelperText error>{validationErrors.color_id}</FormHelperText>
                             }
                         </FormControl>
 
-                        <FormControl sx={{ mt: 2 }} error={'fuel_type' in validationErrors}>
+                        <FormControl sx={{ mt: 2 }} error={'fuel_type_id' in validationErrors}>
                             <InputLabel id="fuel-type-label">
                                 Fuel type
                             </InputLabel>
@@ -378,12 +438,12 @@ const CarFormData = ({successCallable}) => {
                                     {fuelType.name}
                                 </MenuItem>))}
                             </Select>
-                            {'fuel_type' in validationErrors &&
-                                <FormHelperText error>{validationErrors.fuel_type}</FormHelperText>
+                            {'fuel_type_id' in validationErrors &&
+                                <FormHelperText error>{validationErrors.fuel_type_id}</FormHelperText>
                             }
                         </FormControl>
 
-                        <FormControl sx={{ mt: 2 }} error={'gearbox' in validationErrors}>
+                        <FormControl sx={{ mt: 2 }} error={'gearbox_id' in validationErrors}>
                             <InputLabel id="gearbox-label">
                                 Gearbox
                             </InputLabel>
@@ -404,8 +464,8 @@ const CarFormData = ({successCallable}) => {
                                     </MenuItem>
                                 ))}
                             </Select>
-                            {'gearbox' in validationErrors &&
-                                <FormHelperText error>{validationErrors.gearbox}</FormHelperText>
+                            {'gearbox_id' in validationErrors &&
+                                <FormHelperText error>{validationErrors.gearbox_id}</FormHelperText>
                             }
                         </FormControl>
 
@@ -426,12 +486,9 @@ const CarFormData = ({successCallable}) => {
                                     <MenuItem key={manufacturer.id} value={manufacturer.id}>{manufacturer.name}</MenuItem>
                                 ))}
                             </Select>
-                            {'manufacturer' in validationErrors &&
-                                <FormHelperText error>{validationErrors.manufacturer}</FormHelperText>
-                            }
                         </FormControl>
 
-                        <FormControl sx={{ mt: 2 }} error={'model' in validationErrors}>
+                        <FormControl sx={{ mt: 2 }} error={'model_id' in validationErrors}>
                             <InputLabel id="model-label">Model</InputLabel>
                             <Select
                                 labelId="model-label"
@@ -452,8 +509,8 @@ const CarFormData = ({successCallable}) => {
                                     </MenuItem>
                                 ))}
                             </Select>
-                            {'model' in validationErrors &&
-                                <FormHelperText error>{validationErrors.model}</FormHelperText>
+                            {'model_id' in validationErrors &&
+                                <FormHelperText error>{validationErrors.model_id}</FormHelperText>
                             }
                         </FormControl>
                     </FormGroup>
@@ -461,7 +518,7 @@ const CarFormData = ({successCallable}) => {
             )}
             {tabValue === 2 && (
                 <Box sx={{ p: 3, my: 1 }}>
-                    <ChipsArray chipsList={features} setSelectedFeatureIds={setSelectedFeatureIds} />
+                    <ChipsArray chipsList={features} setSelectedIds={setFeatureIds} />
                 </Box>
             )}
             {tabValue === 3 && (
@@ -471,6 +528,8 @@ const CarFormData = ({successCallable}) => {
                             labelId="car-images"
                             buttonText="Upload car images"
                             multiple
+                            existingImages={existingImages}
+                            handleUpdateExistingImages={handleUpdateExistingImages}
                             images={images}
                             setImages={setImages}
                         />
@@ -480,7 +539,6 @@ const CarFormData = ({successCallable}) => {
                     }
                 </Box>
             )}
-            {/*</CustomTabPanel>*/}
             <Box style={{position: 'absolute', bottom: 0, right: 0, padding: '1rem 2rem', marginBottom: '8px', display: 'flex', justifyContent: 'flex-end'}}>
                 <Button variant="contained" onClick={handleSubmit}>Submit</Button>
             </Box>
