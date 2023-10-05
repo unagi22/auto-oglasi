@@ -1,7 +1,10 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://fiscalibur.me/api'
+  baseURL: 'http://fiscalibur.me/api/',
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 // api.interceptors.request.use(

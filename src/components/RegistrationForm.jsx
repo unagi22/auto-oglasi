@@ -1,42 +1,35 @@
 import React, { useState, useEffect } from "react";
 import api from "../services/Api";
+import { isRegistrationValid } from "../utils/validationFunctions";
+import {
+  TextField,
+  Button,
+  Container,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
+import { AccountCircle, Email, Lock } from "@mui/icons-material";
 
 export default function RegistrationForm() {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [first_name, setFirstName] = useState("");
+  const [last_name, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirm_password, setConfirmPassword] = useState("");
   const [country, setCountry] = useState("");
 
   const [countriesList, setCountriesList] = useState([]);
 
-  
-
   useEffect(() => {
     const fetchCountriesList = async () => {
       try {
-        const response = await api.get('/countries');
+        const response = await api.get("countries/");
         setCountriesList(response.data.countries);
-        
       } catch (error) {
         console.error("Error fetching countries:", error);
       }
-      // const api = new Api();
-      // api.get('/countries')
-      //   .then((data) => (console.log(data)))
-      //   .catch((error) => (console.error("Error fetching countries:", error)));
-  
-      // try {
-      //   const response = await fetch("http://fiscalibur.me/api/countries/");
-      //   if (!response.ok) {
-      //     throw new Error("Network response was not ok");
-      //   }
-      //   const data = await response.json();
-      //   setCountriesList(data.countries);
-      // } catch (error) {
-      //   console.error("Error fetching countries:", error);
-      // }
     };
     fetchCountriesList();
   }, []);
@@ -60,101 +53,119 @@ export default function RegistrationForm() {
     setCountry(event.target.value);
   };
 
-  const handleConfirmPassword = (event) => {
-    handleConfirmPasswordChange(event);
-    const value = event.target.value;
-    if (value === password) console.log("matchy");
-    console.log("not matchy");
-  };
-
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    // if (!isEmailGood(formData.email)) return;
-    // if (!isNameGood(formData.name)) return;
-    // if (!isPasswordGood(formData.password)) return;
-    const body = JSON.stringify({firstName, lastName, email, password, country});
-
-    console.log(body);
+    if (isRegistrationValid(email, password, confirm_password)) {
+      try {
+        const data = JSON.stringify({
+          first_name,
+          last_name,
+          email,
+          password,
+          country,
+        });
+        const response = await api.post("register/", data);
+        console.log("Registration successful:", response.data);
+      } catch (error) {
+        console.log("Registration failed:", error);
+      }
+    } else console.log("data not valid");
   };
+
   return (
-    <div>
-      <h1>Registration Form</h1>
+    <Container maxWidth="sm">
       <form onSubmit={handleSubmit}>
-        <label htmlFor="first_name">First Name:</label>
-        <input
-          type="text"
-          id="first_name"
-          name="first_name"
-          value={firstName}
+        <TextField
+          label="First Name"
+          name="firstName"
+          value={first_name}
           onChange={handleFirstNameChange}
-          required
+          fullWidth
+          margin="normal"
+          variant="outlined"
+          InputProps={{
+            startAdornment: <AccountCircle color="primary" />,
+          }}
         />
-        <br />
-        <br />
-
-        <label htmlFor="last_name">Last Name:</label>
-        <input
-          type="text"
-          id="last_name"
-          name="last_name"
-          value={lastName}
+        <TextField
+          label="Last Name"
+          name="lastName"
+          value={last_name}
           onChange={handleLastNameChange}
-          required
+          fullWidth
+          margin="normal"
+          variant="outlined"
+          InputProps={{
+            startAdornment: <AccountCircle color="primary" />,
+          }}
         />
-        <br />
-        <br />
-
-        <label htmlFor="email">Email:</label>
-        <input
-          type="email"
-          id="email"
+        <TextField
+          label="Email"
           name="email"
+          type="email"
           value={email}
           onChange={handleEmailChange}
-          required
+          fullWidth
+          margin="normal"
+          variant="outlined"
+          InputProps={{
+            startAdornment: <Email color="primary" />,
+          }}
         />
-        <br />
-        <br />
-
-        <label htmlFor="password">Password:</label>
-        <input
-          type="password"
-          id="password"
+        <TextField
+          label="Password"
           name="password"
+          type="password"
           value={password}
           onChange={handlePasswordChange}
-          required
+          fullWidth
+          margin="normal"
+          variant="outlined"
+          InputProps={{
+            startAdornment: <Lock color="primary" />,
+          }}
         />
-        <br />
-        <br />
-
-        <label htmlFor="confirmPassword">Confirm Password:</label>
-        <input
-          type="confirmPassword"
-          id="confirmPassword"
+        <TextField
+          label="Confirm Password"
           name="confirmPassword"
-          value={confirmPassword}
-          onChange={handleConfirmPassword}
-          required
+          type="password"
+          value={confirm_password}
+          onChange={handleConfirmPasswordChange}
+          fullWidth
+          margin="normal"
+          variant="outlined"
+          InputProps={{
+            startAdornment: <Lock color="primary" />,
+          }}
         />
-        <br />
-        <br />
-
-        <label htmlFor="country">Country:</label>
-        <select id="country" name="country" onChange={handleCountryChange}>
-          {Object.entries(countriesList).map(([key, value], index) => {
-            return (
-              <option value={key} key={index}>
-                {value}
-              </option>
-            );
-          })}
-        </select>
-        <br />
-        <br />
-
-        <input type="submit" value="Submit" />
+        <FormControl fullWidth margin="normal" variant="outlined">
+          <InputLabel>Country</InputLabel>
+          <Select
+            label="Country"
+            name="country"
+            value={country}
+            onChange={handleCountryChange}
+          >
+            {Object.entries(countriesList).map(([key, value], index) => {
+              return (
+                <MenuItem key={index} value={key}>
+                  {value}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </FormControl>
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          fullWidth
+          size="large"
+          style={{ marginTop: "16px" }}
+        >
+          Register
+        </Button>
       </form>
-    </div>
+    </Container>
   );
 }
