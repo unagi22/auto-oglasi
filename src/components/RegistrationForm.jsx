@@ -1,40 +1,69 @@
 import React, { useState, useEffect } from "react";
+import api from "../services/Api";
 
 export default function RegistrationForm() {
-  const [formData, setFormData] = useState({
-    first_name: "",
-    last_name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    country: "",
-  });
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [country, setCountry] = useState("");
 
-  const [countries, setCountries] = useState([]);
+  const [countriesList, setCountriesList] = useState([]);
 
-  const fetchCountries = async () => {
-    try {
-      const response = await fetch("http://fiscalibur.me/api/countries/");
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      const data = await response.json();
-      setCountries(data.countries);
-    } catch (error) {
-      console.error("Error fetching countries:", error);
-    }
-  };
+  
+
   useEffect(() => {
-    fetchCountries();
+    const fetchCountriesList = async () => {
+      try {
+        const response = await api.get('/countries');
+        setCountriesList(response.data.countries);
+        
+      } catch (error) {
+        console.error("Error fetching countries:", error);
+      }
+      // const api = new Api();
+      // api.get('/countries')
+      //   .then((data) => (console.log(data)))
+      //   .catch((error) => (console.error("Error fetching countries:", error)));
+  
+      // try {
+      //   const response = await fetch("http://fiscalibur.me/api/countries/");
+      //   if (!response.ok) {
+      //     throw new Error("Network response was not ok");
+      //   }
+      //   const data = await response.json();
+      //   setCountriesList(data.countries);
+      // } catch (error) {
+      //   console.error("Error fetching countries:", error);
+      // }
+    };
+    fetchCountriesList();
   }, []);
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormData({ ...formData, [name]: value });
+
+  const handleFirstNameChange = (event) => {
+    setFirstName(event.target.value);
   };
+  const handleLastNameChange = (event) => {
+    setLastName(event.target.value);
+  };
+  const handleEmailChange = (event) => {
+    setEmail(event.target.value);
+  };
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value);
+  };
+  const handleConfirmPasswordChange = (event) => {
+    setConfirmPassword(event.target.value);
+  };
+  const handleCountryChange = (event) => {
+    setCountry(event.target.value);
+  };
+
   const handleConfirmPassword = (event) => {
-    handleChange(event);
+    handleConfirmPasswordChange(event);
     const value = event.target.value;
-    if (value === formData.password) console.log("matchy");
+    if (value === password) console.log("matchy");
     console.log("not matchy");
   };
 
@@ -43,9 +72,9 @@ export default function RegistrationForm() {
     // if (!isEmailGood(formData.email)) return;
     // if (!isNameGood(formData.name)) return;
     // if (!isPasswordGood(formData.password)) return;
+    const body = JSON.stringify({firstName, lastName, email, password, country});
 
-    submitForm(formData);
-    console.log("hi");
+    console.log(body);
   };
   return (
     <div>
@@ -56,8 +85,8 @@ export default function RegistrationForm() {
           type="text"
           id="first_name"
           name="first_name"
-          value={formData.first_name}
-          onChange={handleChange}
+          value={firstName}
+          onChange={handleFirstNameChange}
           required
         />
         <br />
@@ -68,8 +97,8 @@ export default function RegistrationForm() {
           type="text"
           id="last_name"
           name="last_name"
-          value={formData.last_name}
-          onChange={handleChange}
+          value={lastName}
+          onChange={handleLastNameChange}
           required
         />
         <br />
@@ -80,8 +109,8 @@ export default function RegistrationForm() {
           type="email"
           id="email"
           name="email"
-          value={formData.email}
-          onChange={handleChange}
+          value={email}
+          onChange={handleEmailChange}
           required
         />
         <br />
@@ -92,8 +121,8 @@ export default function RegistrationForm() {
           type="password"
           id="password"
           name="password"
-          value={formData.password}
-          onChange={handleChange}
+          value={password}
+          onChange={handlePasswordChange}
           required
         />
         <br />
@@ -104,7 +133,7 @@ export default function RegistrationForm() {
           type="confirmPassword"
           id="confirmPassword"
           name="confirmPassword"
-          value={formData.confirmPassword}
+          value={confirmPassword}
           onChange={handleConfirmPassword}
           required
         />
@@ -112,8 +141,8 @@ export default function RegistrationForm() {
         <br />
 
         <label htmlFor="country">Country:</label>
-        <select id="country" name="country" onChange={handleChange}>
-          {Object.entries(countries).map(([key, value], index) => {
+        <select id="country" name="country" onChange={handleCountryChange}>
+          {Object.entries(countriesList).map(([key, value], index) => {
             return (
               <option value={key} key={index}>
                 {value}
@@ -124,7 +153,7 @@ export default function RegistrationForm() {
         <br />
         <br />
 
-        <input type="submit" value="Submit"/>
+        <input type="submit" value="Submit" />
       </form>
     </div>
   );
