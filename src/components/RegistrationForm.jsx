@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import api from "../services/Api";
+import AxiosApi from "../services/AxiosApi";
 import { isRegistrationValid } from "../utils/validationFunctions";
 import {
   TextField,
@@ -25,7 +25,7 @@ export default function RegistrationForm() {
   useEffect(() => {
     const fetchCountriesList = async () => {
       try {
-        const response = await api.get("countries/");
+        const response = await AxiosApi.get("countries/");
         setCountriesList(response.data.countries);
       } catch (error) {
         console.error("Error fetching countries:", error);
@@ -55,7 +55,7 @@ export default function RegistrationForm() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (isRegistrationValid(email, password, confirm_password)) {
+    // if (isRegistrationValid(email, password, confirm_password)) {
       try {
         const data = JSON.stringify({
           first_name,
@@ -64,12 +64,12 @@ export default function RegistrationForm() {
           password,
           country,
         });
-        const response = await api.post("register/", data);
+        const response = await AxiosApi.post("register/", data);
         console.log("Registration successful:", response.data);
       } catch (error) {
         console.log("Registration failed:", error);
       }
-    } else console.log("data not valid");
+    // } else console.log("data not valid");
   };
 
   return (
