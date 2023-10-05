@@ -1,3 +1,14 @@
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: 'http://fiscalibur.me/api/',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+export default api;
+
 class Api {
   constructor(baseUrl = "http://fiscalibur.me/api") {
     this.baseUrl = baseUrl;
