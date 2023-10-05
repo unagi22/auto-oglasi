@@ -1,15 +1,20 @@
 import { useEffect, useState } from "react";
-import Api from "../services/Api.js";
+import api from "../services/Api";
 
 const About = () => {
   const [aboutUsData, setAboutUsData] = useState([]);
 
   useEffect(() => {
-    const api = new Api();
-    api
-      .get("/pages/home")
-      .then((data) => setAboutUsData(data))
-      .catch((error) => console.error("Error fetching car adverts:", error));
+    const fetchAboutData = async () => {
+      try {
+        const response = await api.get("/pages/home");
+        setAboutUsData(response.data);
+      } catch (error) {
+        console.error("Error fetching about us data:", error);
+      }
+    };
+
+    fetchAboutData();
   }, []);
 
   return (
