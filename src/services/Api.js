@@ -1,5 +1,5 @@
 class Api {
-  constructor(baseUrl = "http://localhost:8000/api") {
+  constructor(baseUrl = "http://fiscalibur.me/api") {
     this.baseUrl = baseUrl;
     this.isAuthenticated = false;
     this.isSuperuser = false;
