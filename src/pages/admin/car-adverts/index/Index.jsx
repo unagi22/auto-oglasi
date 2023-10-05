@@ -14,6 +14,7 @@ import DeleteIcon from "@mui/icons-material/Delete.js";
 import CloseIcon from "@mui/icons-material/Close.js";
 import CheckIcon from "@mui/icons-material/Check.js";
 import AppAlert from "../../../../components/app-alert.jsx";
+import Typography from "@mui/material/Typography";
 
 const api = Api.getInstance();
 
@@ -207,7 +208,9 @@ const CarAdverts = () => {
                 />
             </header>
             <div className={styles.pageContainer}>
-                <DataGrid
+                {items.length === 0 ?
+                    <Typography variant="h5">No items</Typography>
+                : <DataGrid
                     loading={itemsLoading}
                     rows={items}
                     columns={columns}
@@ -216,7 +219,7 @@ const CarAdverts = () => {
                     paginationMode="server"
                     pageSizeOptions={[2, 5]}
                     rowCount={rowCount}
-                />
+                />}
             </div>
             <AlertDialog
                 title="Delete car advert?"

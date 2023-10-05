@@ -12,6 +12,7 @@ import DeleteIcon from "@mui/icons-material/Delete.js";
 import {isEmpty} from "lodash";
 import Box from "@mui/material/Box";
 import AppAlert from "../../../../components/app-alert.jsx";
+import Typography from "@mui/material/Typography";
 
 const api = Api.getInstance();
 
@@ -173,16 +174,18 @@ const CarAdverts = () => {
                 />
             </header>
             <div className={styles.pageContainer}>
-                <DataGrid
-                    loading={itemsLoading}
-                    rows={items}
-                    columns={columns}
-                    paginationModel={paginationModel}
-                    onPaginationModelChange={setPaginationModel}
-                    paginationMode="server"
-                    pageSizeOptions={[2, 5]}
-                    rowCount={rowCount}
-                />
+                {items.length === 0 ?
+                    <Typography variant="h5">No items</Typography>
+                    : <DataGrid
+                        loading={itemsLoading}
+                        rows={items}
+                        columns={columns}
+                        paginationModel={paginationModel}
+                        onPaginationModelChange={setPaginationModel}
+                        paginationMode="server"
+                        pageSizeOptions={[2, 5]}
+                        rowCount={rowCount}
+                    />}
             </div>
             <AlertDialog
                 title="Delete car?"
