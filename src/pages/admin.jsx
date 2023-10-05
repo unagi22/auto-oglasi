@@ -17,7 +17,7 @@ import {
 
 import styles from './admin.module.css';
 import {useEffect, useState} from "react";
-import Api from "../services/Api.js";
+import api from "../services/Api.js";
 import AppModal from "../components/app-modal.jsx";
 import ImageUploader from "../components/ImageUploader.jsx";
 
@@ -51,28 +51,65 @@ const Admin = () => {
     const [vin, setVin] = useState('');
 
 
-    useEffect(() => {
-        fetchRelatingData()
-    }, []);
+    // useEffect(() => {
+    //     fetchRelatingData()
+    // }, []);
 
-    const fetchRelatingData = () => {
-        const api = new Api();
-        api.get('/car-body-types/')
-            .then((data) => (setBodyTypes(data)))
-            .catch((error) => (console.error("Error fetching car body types:", error)));
-        api.get('/car-colors/')
-            .then((data) => (setCarColors(data)))
-            .catch((error) => (console.error("Error fetching car colors:", error)));
-        api.get('/car-fuel-types/')
-            .then((data) => (setFuelTypes(data)))
-            .catch((error) => (console.error("Error fetching fuel types:", error)));
-        api.get('/car-gearboxes/')
-            .then((data) => (setGearboxes(data)))
-            .catch((error) => (console.error("Error fetching gearboxes:", error)));
-        api.get('/car-manufacturers/')
-            .then((data) => (setManufacturers(data)))
-            .catch((error) => (console.error("Error fetching manufacturers:", error)));
-    };
+    useEffect(() => {
+        const fetchRelatingData = async () => {
+          try {
+            const response = await api.get("car-body-types/");
+            setBodyTypes(response.data);
+          } catch (error) {
+            console.error("Error fetching car body types:", error);
+          }
+          try {
+            const response = await api.get("car-colors/");
+            setCarColors(response.data);
+          } catch (error) {
+            console.error("Error fetching car colors:", error);
+          }
+          try {
+            const response = await api.get("car-fuel-types/");
+            setFuelTypes(response.data);
+          } catch (error) {
+            console.error("Error fetching fuel types:", error);
+          }
+          try {
+            const response = await api.get("car-gearboxes/");
+            setGearboxes(response.data);
+          } catch (error) {
+            console.error("Error fetching gearboxes:", error);
+          }
+          try {
+            const response = await api.get("car-manufacturers/");
+            setManufacturers(response.data);
+          } catch (error) {
+            console.error("Error fetching manufacturers:", error);
+          }
+        };
+    
+        fetchRelatingData()
+      }, []);
+
+    // const fetchRelatingData = () => {
+    //     const api = new Api();
+    //     api.get('/car-body-types/')
+    //         .then((data) => (setBodyTypes(data)))
+    //         .catch((error) => (console.error("Error fetching car body types:", error)));
+    //     api.get('/car-colors/')
+    //         .then((data) => (setCarColors(data)))
+    //         .catch((error) => (console.error("Error fetching car colors:", error)));
+    //     api.get('/car-fuel-types/')
+    //         .then((data) => (setFuelTypes(data)))
+    //         .catch((error) => (console.error("Error fetching fuel types:", error)));
+    //     api.get('/car-gearboxes/')
+    //         .then((data) => (setGearboxes(data)))
+    //         .catch((error) => (console.error("Error fetching gearboxes:", error)));
+    //     api.get('/car-manufacturers/')
+    //         .then((data) => (setManufacturers(data)))
+    //         .catch((error) => (console.error("Error fetching manufacturers:", error)));
+    // };
 
     const handleManufactureYearChange = (event) => {
         setManufactureYear(event.target.value);

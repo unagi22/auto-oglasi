@@ -1,16 +1,21 @@
 import { useEffect, useState } from "react";
-import Api from "../services/api";
+import api from "../services/Api";
 
 const Profile = () => {
   const [profileData, setProfileData] = useState({});
 
-  useEffect(() => {
-    const api = new Api();
-    api
-      .get("/profile")
-      .then((data) => setProfileData(data))
-      .catch((error) => console.error("Error fetching car adverts:", error));
-  }, []);
+    useEffect(() => {
+      const fetchProfileData = async () => {
+        try {
+          const response = await api.get("profile/");
+          setProfileData(response.data);
+        } catch (error) {
+          console.error("Error fetching car adverts:", error);
+        }
+      };
+  
+      fetchProfileData();
+    }, []);
 
   return (
     <div>
