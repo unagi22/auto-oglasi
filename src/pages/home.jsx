@@ -51,7 +51,6 @@ const Home = () => {
     useEffect(() => {
         if (!bodyType && !color && !fuelType && !gearbox && !manufacturer && !model && !priceFrom && !priceTo && !mileageFrom && !mileageTo &&
             !cubicCapacityFrom && !cubicCapacityTo) {
-            console.log('FILTERS EMPTY')
         }
     }, [bodyType, color, fuelType, gearbox, manufacturer, model, priceFrom, priceTo, mileageFrom, mileageTo,
         cubicCapacityFrom, cubicCapacityTo]);
