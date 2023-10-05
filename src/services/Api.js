@@ -1,7 +1,7 @@
 class Api {
   constructor(baseUrl = "http://localhost:8000/api") {
     this.baseUrl = baseUrl;
-    this.refreshToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY5NjUzODk0MywiaWF0IjoxNjk2MzY2MTQzLCJqdGkiOiI1MjNlZGM5ZTNmNTg0OWJlOGQ5YTcyY2FhYWQ2ZGM5MCIsInVzZXJfaWQiOjE5LCJpc19zdXBlcnVzZXIiOnRydWV9.gWokPz_C9OL-dGEZFkrW8bCDDfMW2neCVhsXl-llf4A';
+    this.isAuthenticated = false;
     this.isSuperuser = false;
   }
 
@@ -12,12 +12,15 @@ class Api {
       Api.instance = new Api();
     }
 
-    let accessToken = Api.instance.getCurrentToken();
+    let accessToken = Api.instance.getAccessToken();
     if (accessToken) {
+      Api.instance.isAuthenticated = true;
       const tokenData = JSON.parse(atob(accessToken.split('.')[1]))
       if (tokenData.is_superuser !== Api.instance.isSuperuser) {
         Api.instance.isSuperuser = tokenData.is_superuser;
       }
+    } else {
+      Api.instance.isAuthenticated = false;
     }
 
     return Api.instance;
@@ -27,16 +30,28 @@ class Api {
     return this.baseUrl + path;
   }
 
-  storeToken(token) {
+  storeAccessToken(token) {
     window.localStorage.setItem('accessToken', token);
   }
 
-  removeToken() {
+  storeRefreshToken(token) {
+    window.localStorage.setItem('refreshToken', token);
+  }
+
+  removeAccessToken() {
     window.localStorage.removeItem('accessToken');
   }
 
-  getCurrentToken() {
+  removeRefreshToken() {
+    window.localStorage.removeItem('refreshToken');
+  }
+
+  getAccessToken() {
     return window.localStorage.getItem('accessToken');
+  }
+
+  getRefreshToken() {
+    return window.localStorage.getItem('refreshToken');
   }
 
   async refreshAccessToken() {
@@ -46,24 +61,65 @@ class Api {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        refresh: this.refreshToken
+        refresh: this.getRefreshToken()
       }),
     });
 
     const data = await response.json();
     if (data.access) {
-      this.storeToken(data.access);
+      this.storeAccessToken(data.access);
       return data.access;
     }
     return null;
   }
 
-  async obtainTokens() {}
+  async obtainTokens(data) {
+    return this.post('/token/', JSON.stringify(data), {
+      'Content-Type': 'application/json',
+    })
+        .then(async (response) => {
+          console.log('response.staus', response.status)
+          const responseData = await response.json();
+          if (response.status === 200) {
+            const { access, refresh} = responseData;
+            this.storeAccessToken(access);
+            this.storeRefreshToken(refresh);
+            this.isAuthenticated = true;
+
+            window.location.href = '/';
+          } else if ([400, 401].includes(response.status)) {
+            // setValidationErrors(responseData)
+            console.error("Error on login:", responseData);
+            // throw new Error('Invalid credentials')
+            return responseData;
+          }
+        })
+  }
+
+  async logout () {
+    const refresh = this.getRefreshToken();
+    const data = { refresh }
+    this.post('/token/blacklist/', JSON.stringify(data), {
+      'Content-Type': 'application/json',
+    })
+        .then(async (response) => {
+          const responseData = await response.json();
+          if (response.status === 200) {
+            Api.instance.removeAccessToken();
+            Api.instance.removeRefreshToken();
+            Api.instance.isAuthenticated = false;
+
+            window.location.href = '/';
+          } else if (response.status === 400) {
+            console.error("Error adding car data:", responseData);
+          }
+        })
+  }
 
   getHeaders() {
-    if (this.getCurrentToken()) {
+    if (this.getAccessToken()) {
       return {
-        Authorization: `Bearer ${this.getCurrentToken()}`,
+        Authorization: `Bearer ${this.getAccessToken()}`,
       };
     }
 
@@ -77,7 +133,7 @@ class Api {
       ...options
     });
 
-    if (response.status === 401) {
+    if (response.status === 401 && url !== '/token/') {
       console.log('Access token expired');
       try {
         const newToken = await this.refreshAccessToken();
@@ -93,11 +149,10 @@ class Api {
       } catch (error) {
         console.error("Error during token refresh:", error.message);
         // Remove invalid tokens
-        this.removeToken();
-        // Assuming you're using something like react-router or a similar routing library:
+        this.removeRefreshToken();
+        this.removeAccessToken();
         window.location.href = '/login';
-
-        throw new Error("Session expired. Redirecting to login.");
+        // throw new Error("Session expired. Redirecting to login.");
       }
     }
 
