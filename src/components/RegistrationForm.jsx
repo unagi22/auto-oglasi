@@ -9,6 +9,9 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Box,
+  Typography,
+  Grid,
 } from "@mui/material";
 import { AccountCircle, Email, Lock } from "@mui/icons-material";
 
@@ -21,6 +24,23 @@ export default function RegistrationForm() {
   const [country, setCountry] = useState("");
 
   const [countriesList, setCountriesList] = useState([]);
+  const [screenSize, setScreenSize] = useState(getCurrentDimension());
+  const [registrationSuccess, setRegistrationSuccess] = useState(null);
+
+  function getCurrentDimension() {
+    return window.innerWidth;
+  }
+
+  useEffect(() => {
+    const updateDimension = () => {
+      setScreenSize(getCurrentDimension());
+    };
+    window.addEventListener("resize", updateDimension);
+
+    return () => {
+      window.removeEventListener("resize", updateDimension);
+    };
+  }, [screenSize]);
 
   useEffect(() => {
     const fetchCountriesList = async () => {
@@ -55,117 +75,162 @@ export default function RegistrationForm() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    // if (isRegistrationValid(email, password, confirm_password)) {
-      try {
-        const data = JSON.stringify({
-          first_name,
-          last_name,
-          email,
-          password,
-          country,
-        });
-        const response = await AxiosApi.post("register/", data);
-        console.log("Registration successful:", response.data);
-      } catch (error) {
-        console.log("Registration failed:", error);
-      }
-    // } else console.log("data not valid");
+    try {
+      const data = JSON.stringify({
+        first_name,
+        last_name,
+        email,
+        password,
+        country,
+      });
+      const response = await AxiosApi.post("register/", data);
+      console.log("Registration successful:", response.data);
+      setRegistrationSuccess(
+        "Registration submited, check your email for confirmation"
+      );
+    } catch (error) {
+      console.log("Registration failed:", error);
+    }
   };
 
   return (
-    <Container maxWidth="sm">
-      <form onSubmit={handleSubmit}>
-        <TextField
-          label="First Name"
-          name="firstName"
-          value={first_name}
-          onChange={handleFirstNameChange}
-          fullWidth
-          margin="normal"
-          variant="outlined"
-          InputProps={{
-            startAdornment: <AccountCircle color="primary" />,
-          }}
-        />
-        <TextField
-          label="Last Name"
-          name="lastName"
-          value={last_name}
-          onChange={handleLastNameChange}
-          fullWidth
-          margin="normal"
-          variant="outlined"
-          InputProps={{
-            startAdornment: <AccountCircle color="primary" />,
-          }}
-        />
-        <TextField
-          label="Email"
-          name="email"
-          type="email"
-          value={email}
-          onChange={handleEmailChange}
-          fullWidth
-          margin="normal"
-          variant="outlined"
-          InputProps={{
-            startAdornment: <Email color="primary" />,
-          }}
-        />
-        <TextField
-          label="Password"
-          name="password"
-          type="password"
-          value={password}
-          onChange={handlePasswordChange}
-          fullWidth
-          margin="normal"
-          variant="outlined"
-          InputProps={{
-            startAdornment: <Lock color="primary" />,
-          }}
-        />
-        <TextField
-          label="Confirm Password"
-          name="confirmPassword"
-          type="password"
-          value={confirm_password}
-          onChange={handleConfirmPasswordChange}
-          fullWidth
-          margin="normal"
-          variant="outlined"
-          InputProps={{
-            startAdornment: <Lock color="primary" />,
-          }}
-        />
-        <FormControl fullWidth margin="normal" variant="outlined">
-          <InputLabel>Country</InputLabel>
-          <Select
-            label="Country"
-            name="country"
-            value={country}
-            onChange={handleCountryChange}
-          >
-            {Object.entries(countriesList).map(([key, value], index) => {
-              return (
-                <MenuItem key={index} value={key}>
-                  {value}
-                </MenuItem>
-              );
-            })}
-          </Select>
-        </FormControl>
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          fullWidth
-          size="large"
-          style={{ marginTop: "16px" }}
-        >
-          Register
-        </Button>
-      </form>
-    </Container>
+    <Box
+      sx={{
+        mx: "auto",
+        my: 4,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "column",
+        px: 2,
+        py: 4,
+        border: "1px solid rgba(0,0,0,0.15)",
+        borderRadius: "8px",
+        width: { xs: "80vw", sm: "50vw" },
+      }}
+    >
+      <Typography level="h3">Registration</Typography>
+      <Box
+        component="form"
+        sx={{
+          mt: 2,
+        }}
+        noValidate
+        autoComplete="off"
+      >
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              label="First Name"
+              name="firstName"
+              value={first_name}
+              onChange={handleFirstNameChange}
+              size="small"
+              fullWidth
+              variant="outlined"
+              InputProps={{
+                startAdornment: <AccountCircle color="primary" />,
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              label="Last Name"
+              name="lastName"
+              value={last_name}
+              onChange={handleLastNameChange}
+              size="small"
+              fullWidth
+              variant="outlined"
+              InputProps={{
+                startAdornment: <AccountCircle color="primary" />,
+              }}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              required
+              label="Email"
+              name="email"
+              type="email"
+              value={email}
+              onChange={handleEmailChange}
+              size="small"
+              fullWidth
+              variant="outlined"
+              InputProps={{
+                startAdornment: <Email color="primary" />,
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              label="Password"
+              name="password"
+              type="password"
+              value={password}
+              onChange={handlePasswordChange}
+              size="small"
+              fullWidth
+              variant="outlined"
+              InputProps={{
+                startAdornment: <Lock color="primary" />,
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              label="Confirm Password"
+              name="confirmPassword"
+              type="password"
+              value={confirm_password}
+              onChange={handleConfirmPasswordChange}
+              size="small"
+              fullWidth
+              variant="outlined"
+              InputProps={{
+                startAdornment: <Lock color="primary" />,
+              }}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <FormControl fullWidth size="small" variant="outlined">
+              <InputLabel>Country</InputLabel>
+              <Select
+                label="Country"
+                name="country"
+                value={country}
+                onChange={handleCountryChange}
+              >
+                {Object.entries(countriesList).map(([key, value], index) => {
+                  return (
+                    <MenuItem key={index} value={key}>
+                      {value}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
+      </Box>
+
+      <Button
+        type="submit"
+        variant="contained"
+        color="primary"
+        onClick={handleSubmit}
+        sx={{ mt: 2 }}
+      >
+        Register
+      </Button>
+      {registrationSuccess && (
+        <Typography mt={2}>{registrationSuccess}</Typography>
+      )}
+    </Box>
   );
 }

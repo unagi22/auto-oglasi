@@ -14,17 +14,30 @@ const Profile = () => {
   }, []);
 
   return (
-    <div>
+    <div style={{ marginLeft: "10px", textAlign: "center" }}>
       <h1>Profile Page</h1>
+      <hr />
       {profileData && (
-        <div>
-          <div>First name: {profileData.first_name}</div>
-          <div>Last name: {profileData.last_name}</div>
-          <div>Email address: {profileData.email}</div>
+        <div style={{ marginLeft: "10px" }}>
+          <p>
+            <span style={{ fontWeight: "bold" }}>First name:</span>{" "}
+            {profileData.first_name}
+          </p>
+          <p>
+            <span style={{ fontWeight: "bold" }}>Last name:</span>{" "}
+            {profileData.last_name}
+          </p>
+          <p>
+            <span style={{ fontWeight: "bold" }}>Email address:</span>{" "}
+            {profileData.email}
+          </p>
           {profileData.profile_picture && (
             <img src={profileData.profile_picture} alt="Profile picture" />
           )}
-          <div>Country: {profileData.country?.name}</div>
+          <p>
+            <span style={{ fontWeight: "bold" }}>Country:</span>{" "}
+            {profileData.country?.name}
+          </p>
         </div>
       )}
     </div>
