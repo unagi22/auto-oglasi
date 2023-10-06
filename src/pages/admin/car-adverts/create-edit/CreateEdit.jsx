@@ -304,7 +304,7 @@ const CarAdvertFormData = ({editItem = null, successCallable}) => {
                 </Box>
             )}
             {tabValue === 2 && (
-                <Box sx={{ p: 3, my: 1, borderColor: 'red' }}>
+                <Box sx={{ p: 3, my: 1, borderColor: 'error.main' }}>
                     <FormControl error={'images_data' in validationErrors}>
                         <ImageUploader
                             labelId="car-advert-images"
