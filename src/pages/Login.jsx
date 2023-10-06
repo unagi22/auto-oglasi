@@ -43,8 +43,8 @@ const Login = () => {
     };
 
     return (
-        <Box sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Box sx={{ px: 8, py: 4, border: '1px solid rgba(0,0,0,0.15)', borderRadius: '8px', width: '15%' }}>
+        <Box sx={{mt: 2 ,display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Box sx={{ px: 2, py: 4, border: '1px solid rgba(0,0,0,0.15)', borderRadius: '8px'}}>
                 <Typography level="h3">Login</Typography>
                 <Box
                     component="form"
