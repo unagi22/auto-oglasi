@@ -19,3 +19,12 @@ export const dataGridColumnsConfig = [
     },
     { field: 'is_active', headerName: 'Active', type: 'boolean', width: 100 },
 ];
+
+export const multiTenancyColumns = [
+    {
+        field: 'created_by',
+        headerName: 'User',
+        valueGetter: (params) => params.row.created_by.email,
+        width: 200,
+    },
+]

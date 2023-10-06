@@ -27,12 +27,15 @@ const CarAdvertFormData = ({editItem = null, successCallable}) => {
     const [freeCarsChecked, setFreeCarsChecked] = useState(true);
     const [tabValue, setTabValue] = useState(0);
     const [existingImages, setExistingImages] = useState([]);
+    const [tenants, setTenants] = useState([]);
+    const [tenant, setTenant] = useState(0);
 
     const handleTitleChange = (event) => (setTitle(event.target.value));
     const handleDescriptionChange = (event) => (setDescription(event.target.value));
     const handlePriceChange = (event) => (setPrice(event.target.value));
     const handleCurrencyChange = (event) => (setCurrency(event.target.value));
     const handleCarChange = (event) => (setCar(event.target.value));
+    const handleTenantChange = (event) => (setTenant(event.target.value));
 
     const getValidationErrorText = (key) => (validationErrors[key] && validationErrors[key][0] || '');
 
@@ -46,6 +49,10 @@ const CarAdvertFormData = ({editItem = null, successCallable}) => {
             description,
             price
         };
+
+        if (api.isSuperuser) {
+            payload.created_by_id = tenant
+        }
 
         const formData = new FormData();
 
@@ -123,6 +130,9 @@ const CarAdvertFormData = ({editItem = null, successCallable}) => {
         setCurrency(editItem.currency.id);
         setCar(editItem.car.id);
         setExistingImages([{id: editItem.id, image: editItem.image}]);
+        if (api.isSuperuser) {
+            setTenant(editItem.created_by.id)
+        }
     }
 
     useEffect(() => {
@@ -157,7 +167,18 @@ const CarAdvertFormData = ({editItem = null, successCallable}) => {
             .then((data) => (setCurrencies(data)))
             .catch((error) => (console.error("Error fetching currencies:", error)));
         fetchCars();
+
+        if (api.isSuperuser) {
+            fetchTenants();
+        }
     };
+
+    function fetchTenants() {
+        let url = '/users/?all_data=true';
+        api.get(url)
+            .then((data) => (setTenants(data)))
+            .catch((error) => (console.error("Error fetching tenants:", error)));
+    }
 
     const handleFreeCarsChange = () => {
         setFreeCarsChecked(!freeCarsChecked);
@@ -300,11 +321,36 @@ const CarAdvertFormData = ({editItem = null, successCallable}) => {
                                 </Box>
                             </Box>
                         </FormControl>
+                        {api.isSuperuser && <FormControl sx={{ mt: 2 }} error={'created_by_id' in validationErrors}>
+                            <InputLabel id="tenant-label">Tenant</InputLabel>
+                            <Select
+                                labelId="tenant-label"
+                                id="tenant"
+                                label="Tenant"
+                                size="small"
+                                value={tenant}
+                                onChange={handleTenantChange}
+                            >
+                                <MenuItem value={0}>
+                                    <Box sx={{ color: 'text.secondary' }}>
+                                        Select tenant
+                                    </Box>
+                                </MenuItem>
+                                {tenants.map(tenant => (
+                                    <MenuItem key={tenant.id} value={tenant.id}>
+                                        {`${tenant.first_name} ${tenant.last_name} (${tenant.email})`}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                            {'created_by_id' in validationErrors &&
+                                <FormHelperText error>{validationErrors.model_id}</FormHelperText>
+                            }
+                        </FormControl>}
                     </FormGroup>
                 </Box>
             )}
             {tabValue === 2 && (
-                <Box sx={{ p: 3, my: 1, borderColor: 'red' }}>
+                <Box sx={{ p: 3, my: 1, borderColor: 'error.main' }}>
                     <FormControl error={'images_data' in validationErrors}>
                         <ImageUploader
                             labelId="car-advert-images"

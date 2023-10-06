@@ -28,8 +28,8 @@ const CarAdvertFormData = ({ advert }) => {
           my: 1,
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
-          justifyContent: {xs: 'stretch',sm: "space-between" },
-          alignItems: {xs: 'center'},
+          justifyContent: { xs: "stretch", sm: "space-between" },
+          alignItems: { xs: "center" },
         }}
       >
         <ShowItemCard
@@ -52,8 +52,8 @@ const CarAdvertFormData = ({ advert }) => {
           my: 1,
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
-          justifyContent: {sm: "space-between" },
-          alignItems: {xs: 'center'},
+          justifyContent: { sm: "space-between" },
+          alignItems: { xs: "center" },
         }}
       >
         <ShowItemCard
@@ -71,8 +71,8 @@ const CarAdvertFormData = ({ advert }) => {
           my: 1,
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
-          justifyContent: {sm: "space-between" },
-          alignItems: {xs: 'center'},
+          justifyContent: { sm: "space-between" },
+          alignItems: { xs: "center" },
         }}
       >
         <ShowItemCard title="Power (kw)" description={advert.car.power} />
@@ -87,8 +87,8 @@ const CarAdvertFormData = ({ advert }) => {
           my: 1,
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
-          justifyContent: {sm: "space-between" },
-          alignItems: {xs: 'center'},
+          justifyContent: { sm: "space-between" },
+          alignItems: { xs: "center" },
         }}
       >
         <ShowItemCard
@@ -106,8 +106,8 @@ const CarAdvertFormData = ({ advert }) => {
           my: 1,
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
-          justifyContent: {sm: "space-between" },
-          alignItems: {xs: 'center'},
+          justifyContent: { sm: "space-between" },
+          alignItems: { xs: "center" },
         }}
       >
         <ShowItemCard

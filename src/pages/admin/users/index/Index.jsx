@@ -8,17 +8,16 @@ import Box from "@mui/material/Box";
 import {isEmpty} from "lodash";
 import {useEffect, useState} from "react";
 import Api from "../../../../services/Api.js";
-import {dataGridColumnsConfig, multiTenancyColumns} from "./config.js";
+import {dataGridColumnsConfig} from "./config.js";
 import EditIcon from "@mui/icons-material/Edit.js";
 import DeleteIcon from "@mui/icons-material/Delete.js";
-import CloseIcon from "@mui/icons-material/Close.js";
 import CheckIcon from "@mui/icons-material/Check.js";
 import AppAlert from "../../../../components/app-alert.jsx";
 import Typography from "@mui/material/Typography";
 
 const api = Api.getInstance();
 
-const CarAdverts = () => {
+const Users = () => {
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [deleteItem, setDeleteItem] = useState({});
@@ -36,7 +35,6 @@ const CarAdverts = () => {
     const [alerts, setAlerts] = useState([]);
 
     const actions = (params) => {
-        const isActive = params.row.is_active;
         const actions = [
             <GridActionsCellItem
                 key="edit"
@@ -59,18 +57,12 @@ const CarAdverts = () => {
                 showInMenu
             />,
         ];
-        if (api.isSuperuser) {
+        if (!params.row.email_verified) {
             actions.push(<GridActionsCellItem
-                key="activate-deactivate"
-                icon={isActive ? <CloseIcon /> : <CheckIcon />}
-                label={isActive ? 'Deactivate' : 'Activate'}
-                onClick={() => {
-                    if (isActive) {
-                        deactivateAdvert(params.row.id);
-                    } else {
-                        activateAdvert(params.row.id);
-                    }
-                }}
+                key="verify-email"
+                icon={<CheckIcon />}
+                label="Verify email"
+                onClick={() => (verifyEmail(params.row.id))}
                 showInMenu
             />)
         }
@@ -98,27 +90,27 @@ const CarAdverts = () => {
     const handleCreateSuccess = () => {
         closeModal();
         fetchList();
-        setAlerts(['Car advert successfully created!', ...alerts]);
+        setAlerts(['User successfully created!', ...alerts]);
     }
 
     const getDeleteText = () => {
         if (isEmpty(deleteItem)) return '';
 
-        const car = deleteItem.car;
-        const carFormatted = `${car.model.manufacturer.name} ${car.model.name} (${car.vin})`;
-        let text = `You are about to delete the car advert for the "${carFormatted}".\n`
+        const user = deleteItem;
+        const userFormatted = `${user.first_name} ${user.last_name} (${user.email})`;
+        let text = `You are about to delete the "${userFormatted}" user.\n`
         text += 'This action is permanent, are you sure you wish to continue?';
 
         return text;
     }
 
     function itemDelete(id) {
-        api.delete(`/car-adverts/${id}/`)
+        api.delete(`/users/${id}/`)
             .then(() => {
                 fetchList();
-                setAlerts(['Car advert successfully deleted', ...alerts]);
+                setAlerts(['User successfully deleted', ...alerts]);
             })
-            .catch((error) => (console.error("Error deleting car advert:", error)));
+            .catch((error) => (console.error("Error deleting user:", error)));
     }
 
     function deleteConfirmed () {
@@ -130,30 +122,21 @@ const CarAdverts = () => {
     const handleEditSuccess = () => {
         closeEditModal();
         fetchList();
-        setAlerts(['Car advert successfully updated!', ...alerts]);
+        setAlerts(['User successfully updated!', ...alerts]);
     }
 
-    function activateAdvert(id) {
-        api.patch(`/car-adverts/${id}/activate/`)
+    function verifyEmail(id) {
+        api.patch(`/admin/verify-email/${id}/`)
             .then(() => {
                 fetchList()
-                setAlerts(['Car advert successfully activated', ...alerts])
+                setAlerts(['Email verified successfully!', ...alerts])
             })
-            .catch((error) => (console.error("Error activating car advert:", error)));
-    }
-
-    function deactivateAdvert(id) {
-        api.patch(`/car-adverts/${id}/deactivate/`)
-            .then(() => {
-                fetchList()
-                setAlerts(['Car advert successfully deactivated', ...alerts])
-            })
-            .catch((error) => (console.error("Error deactivating car advert:", error)));
+            .catch((error) => (console.error("Error activating user:", error)));
     }
 
     function fetchList() {
         setItemsLoading(true);
-        let url = `/car-adverts/`;
+        let url = `/users/`;
         const pageNumber = itemsPaginationModel.page + 1;
         if (pageNumber > 1) {
             url += `?page=${pageNumber}`;
@@ -163,7 +146,7 @@ const CarAdverts = () => {
                 setRowCount(data.count);
                 setItems(data.results);
             })
-            .catch((error) => (console.error("Error fetching car adverts:", error)))
+            .catch((error) => (console.error("Error fetching users:", error)))
             .finally(() => {
                 setItemsLoading(false);
             });
@@ -186,11 +169,7 @@ const CarAdverts = () => {
     }, [alerts]);
 
     useEffect(() => {
-        if (api.isSuperuser) {
-            setColumns([...columns, ...multiTenancyColumns, ...actionColumns])
-        } else {
-            setColumns([...columns, ...actionColumns])
-        }
+        setColumns([...columns, ...actionColumns])
         fetchList();
     }, []);
 
@@ -203,8 +182,8 @@ const CarAdverts = () => {
             {alerts.length > 0 && <AppAlert message={alerts[0]} />}
             <header className={styles.header}>
                 <AppModal
-                    buttonText="Create car advert"
-                    title="Create car advert"
+                    buttonText="Create user"
+                    title="Create user"
                     open={modalOpen}
                     handleOpen={openModal}
                     handleClose={closeModal}
@@ -214,19 +193,19 @@ const CarAdverts = () => {
             <div className={styles.pageContainer}>
                 {items.length === 0 ?
                     <Typography variant="h5">No items</Typography>
-                : <DataGrid
-                    loading={itemsLoading}
-                    rows={items}
-                    columns={columns}
-                    paginationModel={itemsPaginationModel}
-                    onPaginationModelChange={setItemsPaginationModel}
-                    paginationMode="server"
-                    pageSizeOptions={[2, 5]}
-                    rowCount={rowCount}
-                />}
+                    : <DataGrid
+                        loading={itemsLoading}
+                        rows={items}
+                        columns={columns}
+                        paginationModel={itemsPaginationModel}
+                        onPaginationModelChange={setItemsPaginationModel}
+                        paginationMode="server"
+                        pageSizeOptions={[2, 5]}
+                        rowCount={rowCount}
+                    />}
             </div>
             <AlertDialog
-                title="Delete car advert?"
+                title="Delete user?"
                 text={getDeleteText()}
                 icon={<DeleteForeverIcon />}
                 open={deleteModalOpen}
@@ -236,7 +215,7 @@ const CarAdverts = () => {
             />
             <AppModal
                 buttonHidden
-                title="Edit car advert"
+                title="Edit user"
                 open={editModalOpen}
                 handleOpen={openEditModal}
                 handleClose={closeEditModal}
@@ -246,4 +225,4 @@ const CarAdverts = () => {
     );
 };
 
-export default CarAdverts;
+export default Users;

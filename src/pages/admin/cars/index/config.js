@@ -6,11 +6,11 @@ export const dataGridColumnsConfig = [
         field: 'model',
         headerName: 'Model',
         valueGetter: (params) => params.row.model.manufacturer.name + ' ' + params.row.model.name,
-        width: 120,
+        width: 110,
     },
-    { field: 'vin', headerName: 'VIN', type: 'number', width: 90 },
+    { field: 'vin', headerName: 'VIN', type: 'number', width: 80 },
     { field: 'cubic_capacity', headerName: 'Cubic capacity', type: 'number', width: 110 },
-    { field: 'door_count', headerName: 'Door count', type: 'number', width: 90 },
+    { field: 'door_count', headerName: 'Door count', type: 'number', width: 80 },
     { field: 'seat_number', headerName: 'Seat number', type: 'number', width: 90 },
     {
         field: 'license_plate',
@@ -58,5 +58,14 @@ export const dataGridColumnsConfig = [
         description: 'Gearbox acronym',
         valueGetter: (params) => params.row.gearbox.code,
         width: 80,
-    },
+    }
 ];
+
+export const multiTenancyColumns = [
+    {
+        field: 'created_by',
+        headerName: 'User',
+        valueGetter: (params) => params.row.created_by.email,
+        width: 130,
+    },
+]
