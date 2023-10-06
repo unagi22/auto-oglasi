@@ -130,6 +130,9 @@ const CarAdvertFormData = ({editItem = null, successCallable}) => {
         setCurrency(editItem.currency.id);
         setCar(editItem.car.id);
         setExistingImages([{id: editItem.id, image: editItem.image}]);
+        if (api.isSuperuser) {
+            setTenant(editItem.created_by.id)
+        }
     }
 
     useEffect(() => {
