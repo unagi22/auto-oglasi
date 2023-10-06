@@ -17,7 +17,8 @@ const Login = () => {
     }, []);
 
     async function verifyEmail(token) {
-        let response = await fetch(api.getUrl(`/verify-email/${token}`), {
+        let response = await fetch(api.getUrl(`/verify-email/${token}/`), {
+            method: 'PATCH',
             headers: {'Content-Type': 'application/json'},
         });
 
