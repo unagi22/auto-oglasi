@@ -6,6 +6,7 @@ import Profile from "../pages/profile";
 import Admin from "../pages/admin/admin.jsx";
 import Login from "../pages/Login.jsx";
 import RegistrationForm from "../components/RegistrationForm";
+import VerifyEmail from "../pages/VerifyEmail.jsx";
 
 const AppRoutes = () => {
   return (
@@ -17,6 +18,7 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/registration" element={<RegistrationForm />} />
       <Route path="/admin" element={<Admin />} />
+      <Route path="/verify-email/:token/" element={<VerifyEmail />} />
     </Routes>
   );
 };
