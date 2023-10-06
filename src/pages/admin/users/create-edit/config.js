@@ -1,4 +1,4 @@
-const tab1 = ['first_name', 'last_name', 'email', 'email_verified'];
+const tab1 = ['first_name', 'last_name', 'email', 'password'];
 const tab2 = ['country'];
 const tab3 = ['profile_picture'];
 
