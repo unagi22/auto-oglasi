@@ -40,26 +40,25 @@ const App = () => {
           </Box>
 
           <ul className={showDrawer ? "popoverList" : "header-links"}>
-            {/* {api.isAuthenticated ? ( */}
-            <>
-              <li>
-                <Link to="/profile">Profile</Link>
-              </li>
-              <li>
-                <Link to="/admin">
-                  {api.isSuperuser ? "Admin panel" : "User data"}
-                </Link>
-              </li>
-              <li>
-                <Link onClick={() => api.logout()}>Logout</Link>
-              </li>
-            </>
-
-            {/* ) : (
+            {api.isAuthenticated ? (
+              <>
+                <li>
+                  <Link to="/profile">Profile</Link>
+                </li>
+                <li>
+                  <Link to="/admin">
+                    {api.isSuperuser ? "Admin panel" : "User data"}
+                  </Link>
+                </li>
+                <li>
+                  <Link onClick={() => api.logout()}>Logout</Link>
+                </li>
+              </>
+            ) : (
               <li>
                 <Link to="/login">Login</Link>
               </li>
-            )} */}
+            )}
           </ul>
         </nav>
         <div
