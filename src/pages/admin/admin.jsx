@@ -7,6 +7,7 @@ import {useState} from "react";
 import Box from '@mui/material/Box';
 import CarAdverts from "./car-adverts/index/Index.jsx";
 import Cars from "./cars/index/Index.jsx";
+import Users from "./users/index/Index.jsx";
 
 const api = Api.getInstance();
 
@@ -56,6 +57,7 @@ const Admin = () => {
                 <Tabs value={tabValue} onChange={handleTabChange} aria-label="basic tabs example">
                     <Tab label="Car adverts" {...a11yProps(0)} />
                     <Tab label="Cars" {...a11yProps(1)} />
+                    {api.isSuperuser && <Tab label="Users" {...a11yProps(2)} />}
                 </Tabs>
             </Box>
 
@@ -65,6 +67,9 @@ const Admin = () => {
             <CustomTabPanel value={tabValue} index={1}>
                 <Cars />
             </CustomTabPanel>
+            {api.isSuperuser && <CustomTabPanel value={tabValue} index={2}>
+                <Users />
+            </CustomTabPanel>}
         </div>
     );
 };
