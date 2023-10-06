@@ -2,7 +2,7 @@ import {useCallback, useEffect, useState} from "react";
 import Api from "../services/Api.js";
 import AdvertCard from "./AdvertCard.jsx";
 import Box from "@mui/material/Box";
-import {FormGroup, InputLabel, MenuItem, Select, FormControl, TextField} from "@mui/material";
+import {FormGroup, InputLabel, MenuItem, Select, FormControl, TextField, InputAdornment} from "@mui/material";
 import {isEmpty, debounce} from "lodash";
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
@@ -13,6 +13,7 @@ import { yellow } from '@mui/material/colors';
 import AppModal from "../components/app-modal.jsx";
 import Button from "@mui/material/Button";
 import ShowCarAdvert from "./admin/car-adverts/show.jsx";
+import SearchIcon from '@mui/icons-material/Search';
 
 
 const api = Api.getInstance();
@@ -37,11 +38,13 @@ const Home = () => {
     const [mileageTo, setMileageTo] = useState('');
     const [cubicCapacityFrom, setCubicCapacityFrom] = useState('');
     const [cubicCapacityTo, setCubicCapacityTo] = useState('');
+    const [search, setSearch] = useState('');
     const [debouncedFilters, setDebouncedFilters] = useState({});
     const [showAdvert, setShowAdvert] = useState(false);
     const [selectedCarAdvert, setSelectedCarAdvert] = useState({id: null})
     const [itemsCount, setItemsCount] = useState(0)
     const [nextPage, setNextPage] = useState(null)
+    const [filtersEmpty, setFiltersEmpty] = useState(true)
 
     useEffect(() => {
         fetchCarAdvertsDebounced();
@@ -51,6 +54,14 @@ const Home = () => {
     useEffect(() => {
         if (!bodyType && !color && !fuelType && !gearbox && !manufacturer && !model && !priceFrom && !priceTo && !mileageFrom && !mileageTo &&
             !cubicCapacityFrom && !cubicCapacityTo) {
+            console.log('SET FILTERS EMPTY TO TRUE')
+            setFiltersEmpty(true);
+        }
+
+        if (bodyType || color || fuelType || gearbox || manufacturer || model || priceFrom || priceTo || mileageFrom || mileageTo ||
+            cubicCapacityFrom || cubicCapacityTo) {
+            console.log('SET FILTERS EMPTY TO FALSE')
+            setFiltersEmpty(false);
         }
     }, [bodyType, color, fuelType, gearbox, manufacturer, model, priceFrom, priceTo, mileageFrom, mileageTo,
         cubicCapacityFrom, cubicCapacityTo]);
@@ -183,9 +194,17 @@ const Home = () => {
     function fetchCarAdvertsDebounced(debouncedFilters = null) {
         let url = "/car-adverts/all";
         const filters = getFiltersDebounced(debouncedFilters);
-        if (!isEmpty(filters)) {
+        const emptyFilters = isEmpty(filters);
+        if (!emptyFilters) {
             url += `?${filtersToQueryParams(filters)}`;
         }
+
+        if (debouncedFilters?.search) {
+            let prefix;
+            prefix = emptyFilters ? '?' : '&';
+            url += `${prefix}search=${debouncedFilters.search}`
+        }
+
         if (nextPage) {
             url += `&page=${nextPage}`
         }
@@ -193,7 +212,12 @@ const Home = () => {
         api
             .get(url)
             .then((data) => {
-                setAdverts([...adverts, ...data.results]);
+                console.log('filtersEmpty222', debouncedFilters?.filtersEmpty)
+                if (debouncedFilters?.filtersEmpty) {
+                    setAdverts([...data.results]);
+                } else {
+                    setAdverts([...adverts, ...data.results]);
+                }
 
                 setItemsCount(data.count)
                 if (data.next) {
@@ -215,10 +239,11 @@ const Home = () => {
     };
 
     function createHandleChange(setterFunction, key, delayTime = 1500) {
+        const filtersEmptyValue = filtersEmpty;
         return (event) => {
             const value = event.target.value;
             setterFunction(value);
-            const debouncedFiltersModified = { ...debouncedFilters, [key]: value };
+            const debouncedFiltersModified = { ...debouncedFilters, [key]: value, filtersEmpty: filtersEmptyValue };
             setDebouncedFilters(debouncedFiltersModified);
             debouncedSendRequest(delayTime)(debouncedFiltersModified);
         };
@@ -243,6 +268,7 @@ const Home = () => {
     const handleMileageToChange = createHandleChange(setMileageTo, 'mileageTo');
     const handleCubicCapacityFromChange = createHandleChange(setCubicCapacityFrom, 'cubicCapacityFrom');
     const handleCubicCapacityToChange = createHandleChange(setCubicCapacityTo, 'cubicCapacityTo');
+    const handleSearchChange = createHandleChange(setSearch, 'search');
 
     function loadMoreItems() {
         fetchCarAdvertsDebounced();
@@ -275,7 +301,7 @@ const Home = () => {
                     id="panel1a-header"
                     sx={{ bgcolor: yellow[50] }}
                 >
-                    <Typography variant="h5">Filters</Typography>
+                    <Typography variant="h5">Filters and Search</Typography>
                 </AccordionSummary>
                 <AccordionDetails sx={{ bgcolor: yellow[50] }}>
                     <Box sx={{
@@ -487,6 +513,26 @@ const Home = () => {
                                 }}
                             />
                         </FormControl>
+                    </Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                        <Box sx={{ width: '25%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <Typography variant="h5" sx={{ mb: 1 }}>Search</Typography>
+                            <TextField
+                                id="input-with-icon-textfield"
+                                label="Search car adverts"
+                                fullWidth
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <SearchIcon />
+                                        </InputAdornment>
+                                    ),
+                                }}
+                                variant="filled"
+                                value={search}
+                                onChange={handleSearchChange}
+                            />
+                        </Box>
                     </Box>
                 </AccordionDetails>
             </Accordion>
