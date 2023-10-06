@@ -8,7 +8,7 @@ import Box from "@mui/material/Box";
 import {isEmpty} from "lodash";
 import {useEffect, useState} from "react";
 import Api from "../../../../services/Api.js";
-import {dataGridColumnsConfig} from "./config.js";
+import {dataGridColumnsConfig, multiTenancyColumns} from "./config.js";
 import EditIcon from "@mui/icons-material/Edit.js";
 import DeleteIcon from "@mui/icons-material/Delete.js";
 import CloseIcon from "@mui/icons-material/Close.js";
@@ -186,7 +186,11 @@ const CarAdverts = () => {
     }, [alerts]);
 
     useEffect(() => {
-        setColumns([...columns, ...actionColumns])
+        if (api.isSuperuser) {
+            setColumns([...columns, ...multiTenancyColumns, ...actionColumns])
+        } else {
+            setColumns([...columns, ...actionColumns])
+        }
         fetchList();
     }, []);
 
