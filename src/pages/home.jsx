@@ -14,6 +14,8 @@ import AppModal from "../components/app-modal.jsx";
 import Button from "@mui/material/Button";
 import ShowCarAdvert from "./admin/car-adverts/show.jsx";
 import SearchIcon from '@mui/icons-material/Search';
+import ImportExportIcon from '@mui/icons-material/ImportExport';
+import {orderFields} from "./home_config.js";
 
 
 const api = Api.getInstance();
@@ -39,6 +41,8 @@ const Home = () => {
     const [cubicCapacityFrom, setCubicCapacityFrom] = useState('');
     const [cubicCapacityTo, setCubicCapacityTo] = useState('');
     const [search, setSearch] = useState('');
+    const [orderField, setOrderField] = useState('');
+    const [orderDirection, setOrderDirection] = useState('');
     const [debouncedFilters, setDebouncedFilters] = useState({});
     const [showAdvert, setShowAdvert] = useState(false);
     const [selectedCarAdvert, setSelectedCarAdvert] = useState({id: null})
@@ -53,13 +57,13 @@ const Home = () => {
 
     useEffect(() => {
         if (!bodyType && !color && !fuelType && !gearbox && !manufacturer && !model && !priceFrom && !priceTo && !mileageFrom && !mileageTo &&
-            !cubicCapacityFrom && !cubicCapacityTo) {
+            !cubicCapacityFrom && !cubicCapacityTo && !orderField && !orderDirection) {
             console.log('SET FILTERS EMPTY TO TRUE')
             setFiltersEmpty(true);
         }
 
         if (bodyType || color || fuelType || gearbox || manufacturer || model || priceFrom || priceTo || mileageFrom || mileageTo ||
-            cubicCapacityFrom || cubicCapacityTo) {
+            cubicCapacityFrom || cubicCapacityTo || orderField || orderDirection) {
             console.log('SET FILTERS EMPTY TO FALSE')
             setFiltersEmpty(false);
         }
@@ -178,31 +182,31 @@ const Home = () => {
         return `filters=${encodeURIComponent(JSON.stringify(filters))}`;
     }
 
-    function generateUrlValue () {
-        let url = "/car-adverts/all";
-        const filters = getFiltersDebounced(debouncedFilters);
-        if (!isEmpty(filters)) {
-            url += `?${filtersToQueryParams(filters)}`;
-        }
-        if (nextPage) {
-            url += `&page=${nextPage}`
-        }
-
-        return url;
-    }
-
     function fetchCarAdvertsDebounced(debouncedFilters = null) {
         let url = "/car-adverts/all";
         const filters = getFiltersDebounced(debouncedFilters);
         const emptyFilters = isEmpty(filters);
+        const emptySearch = !debouncedFilters?.search;
         if (!emptyFilters) {
             url += `?${filtersToQueryParams(filters)}`;
         }
 
-        if (debouncedFilters?.search) {
+        if (!emptySearch) {
             let prefix;
             prefix = emptyFilters ? '?' : '&';
             url += `${prefix}search=${debouncedFilters.search}`
+        }
+        console.log('debouncedFilters', debouncedFilters)
+
+        if (debouncedFilters?.orderField || debouncedFilters?.orderDirection) {
+            let prefix;
+            prefix = emptyFilters && emptySearch ? '?' : '&';
+            console.log('debouncedFilters.orderDirection', debouncedFilters?.orderDirection)
+            const order = {
+                by: debouncedFilters?.orderField,
+                direction: debouncedFilters.orderDirection ?? ''
+            }
+            url += `${prefix}order=${encodeURIComponent(JSON.stringify(order))}`
         }
 
         if (nextPage) {
@@ -269,6 +273,15 @@ const Home = () => {
     const handleCubicCapacityFromChange = createHandleChange(setCubicCapacityFrom, 'cubicCapacityFrom');
     const handleCubicCapacityToChange = createHandleChange(setCubicCapacityTo, 'cubicCapacityTo');
     const handleSearchChange = createHandleChange(setSearch, 'search');
+    const handleOrderByChange = createHandleChange(setOrderField, 'orderField', 10);
+
+    const handleOrderDirectionChange = () => {
+        const val = orderDirection === '' ? '-' : '';
+        setOrderDirection(val);
+        const debouncedFiltersModified = { ...debouncedFilters, orderDirection: val, filtersEmpty };
+        setDebouncedFilters(debouncedFiltersModified);
+        debouncedSendRequest(10)(debouncedFiltersModified);
+    }
 
     function loadMoreItems() {
         fetchCarAdvertsDebounced();
@@ -293,7 +306,7 @@ const Home = () => {
     }
 
     return (
-        <Box>
+        <Box sx={{ height: '100%', overflowY: 'scroll' }}>
             <Accordion>
                 <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
@@ -301,7 +314,7 @@ const Home = () => {
                     id="panel1a-header"
                     sx={{ bgcolor: yellow[50] }}
                 >
-                    <Typography variant="h5">Filters and Search</Typography>
+                    <Typography variant="h5">Filter, Search and Order</Typography>
                 </AccordionSummary>
                 <AccordionDetails sx={{ bgcolor: yellow[50] }}>
                     <Box sx={{
@@ -515,12 +528,14 @@ const Home = () => {
                         </FormControl>
                     </Box>
                     <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                        <Box sx={{ width: '25%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <Box sx={{ width: '50%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                             <Typography variant="h5" sx={{ mb: 1 }}>Search</Typography>
                             <TextField
                                 id="input-with-icon-textfield"
                                 label="Search car adverts"
                                 fullWidth
+                                size="small"
+                                sx={{ width: '50%' }}
                                 InputProps={{
                                     endAdornment: (
                                         <InputAdornment position="end">
@@ -533,12 +548,53 @@ const Home = () => {
                                 onChange={handleSearchChange}
                             />
                         </Box>
+                        <Box sx={{ width: '50%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Typography variant="h5">Order by</Typography>
+                            <FormGroup sx={{ mt: 1, width: '66%', display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                                <FormControl sx={{ width: '50%' }}>
+                                    <InputLabel id="order-by-fields-label">
+                                        Order by
+                                    </InputLabel>
+                                    <Select
+                                        labelId="order-by-fields-label"
+                                        id="body-type"
+                                        value={orderField}
+                                        label="Order by"
+                                        variant="filled"
+                                        size="small"
+                                        onChange={handleOrderByChange}
+                                    >
+                                        <MenuItem value=''>
+                                            <Box sx={{ color: 'text.secondary' }}>Select field</Box>
+                                        </MenuItem>
+                                        {orderFields.map(field => (
+                                            <MenuItem key={field.id} value={field.value}>
+                                                {field.name}
+                                            </MenuItem>)
+                                        )}
+                                    </Select>
+                                </FormControl>
+                                <FormControl
+                                    sx={{ ml: 1, display: 'flex', flexDirection: 'row', alignItems: 'center', cursor: 'pointer' }}
+                                    onClick={handleOrderDirectionChange}
+                                >
+                                    <ImportExportIcon fontSize="large" />
+                                    <Typography variant="body1">
+                                        {orderDirection == '' ? 'Ascending' : 'Descending'}
+                                    </Typography>
+                                </FormControl>
+                            </FormGroup>
+                        </Box>
                     </Box>
                 </AccordionDetails>
             </Accordion>
             <div className="card-container">
                 {adverts.map((advert) => (
-                    <Box sx={{ outline: 'none', cursor: 'pointer' }} key={advert.id} onClick={() => handleShowAdvertModal(advert)}>
+                    <Box
+                        key={advert.id}
+                        sx={{ outline: 'none', cursor: 'pointer' }}
+                        onClick={() => handleShowAdvertModal(advert)}
+                    >
                         <AdvertCard advert={advert} />
                     </Box>
                 ))}
