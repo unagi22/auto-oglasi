@@ -44,6 +44,8 @@ const CarFormData = ({editItem = null, successCallable}) => {
     const [licensePlate, setLicensePlate] = useState('');
     const [tabValue, setTabValue] = useState(0);
     const [featuresFetched, setFeaturesFetched] = useState(false);
+    const [tenants, setTenants] = useState([]);
+    const [tenant, setTenant] = useState(0);
 
     const editMode = () => (!!editItem);
 
@@ -62,6 +64,7 @@ const CarFormData = ({editItem = null, successCallable}) => {
     const handleModelChange = (event) => (setModel(event.target.value));
     const handleSeatNumberChange = (event) => (setSeatNumber(event.target.value));
     const handleLicensePlateChange = (event) => (setLicensePlate(event.target.value));
+    const handleTenantChange = (event) => (setTenant(event.target.value));
 
     const handleRegistrationDateChange = (dayjsObject) => {
         if (dayjsObject) {
@@ -99,6 +102,10 @@ const CarFormData = ({editItem = null, successCallable}) => {
             model_id: model,
         };
 
+        if (api.isSuperuser) {
+            payload.created_by_id = tenant
+        }
+
         const formData = new FormData();
 
         for (const key in payload) {
@@ -113,6 +120,8 @@ const CarFormData = ({editItem = null, successCallable}) => {
             existingImages.forEach(image => formData.append('image_ids', image.id));
         }
         images.forEach(imageFile => (formData.append('images_data', imageFile)));
+
+        console.log('formData', formData)
 
         return formData;
     };
@@ -133,6 +142,9 @@ const CarFormData = ({editItem = null, successCallable}) => {
         setGearbox(editItem.gearbox.id);
         setManufacturer(editItem.model?.manufacturer?.id);
         setModel(editItem.model.id);
+        if (api.isSuperuser) {
+            setTenant(editItem.created_by.id)
+        }
 
         const featureIdsSet = new Set(editItem.features.map(feature => feature.id));
 
@@ -230,7 +242,18 @@ const CarFormData = ({editItem = null, successCallable}) => {
         if (!featuresFetched) {
             fetchFeatures()
         }
+
+        if (api.isSuperuser) {
+            fetchTenants();
+        }
     };
+
+    function fetchTenants() {
+        let url = '/users/?all_data=true';
+        api.get(url)
+            .then((data) => (setTenants(data)))
+            .catch((error) => (console.error("Error fetching tenants:", error)));
+    }
 
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
@@ -287,7 +310,7 @@ const CarFormData = ({editItem = null, successCallable}) => {
                                    type="number"
                                    variant="outlined"
                                    size="small"
-                                   style={{marginTop: '1rem'}}
+                                   sx={{ mt: 2 }}
                                    error={'vin' in validationErrors}
                                    helperText={getValidationErrorText('vin')}
                                    value={vin}
@@ -298,7 +321,7 @@ const CarFormData = ({editItem = null, successCallable}) => {
                                    type="number"
                                    variant="outlined"
                                    size="small"
-                                   style={{marginTop: '1rem'}}
+                                   sx={{ mt: 2 }}
                                    error={'mileage' in validationErrors}
                                    helperText={getValidationErrorText('mileage')}
                                    value={mileage}
@@ -309,7 +332,7 @@ const CarFormData = ({editItem = null, successCallable}) => {
                                    type="number"
                                    variant="outlined"
                                    size="small"
-                                   style={{marginTop: '1rem'}}
+                                   sx={{ mt: 2 }}
                                    error={'cubic_capacity' in validationErrors}
                                    helperText={getValidationErrorText('cubic_capacity')}
                                    value={cubicCapacity}
@@ -320,7 +343,7 @@ const CarFormData = ({editItem = null, successCallable}) => {
                                    type="number"
                                    variant="outlined"
                                    size="small"
-                                   style={{marginTop: '1rem'}}
+                                   sx={{ mt: 2 }}
                                    error={'power' in validationErrors}
                                    helperText={getValidationErrorText('power')}
                                    value={power}
@@ -331,7 +354,7 @@ const CarFormData = ({editItem = null, successCallable}) => {
                                    type="number"
                                    variant="outlined"
                                    size="small"
-                                   style={{marginTop: '1rem'}}
+                                   sx={{ mt: 2 }}
                                    error={'door_count' in validationErrors}
                                    helperText={getValidationErrorText('door_count')}
                                    value={doorCount}
@@ -342,7 +365,7 @@ const CarFormData = ({editItem = null, successCallable}) => {
                                    type="number"
                                    variant="outlined"
                                    size="small"
-                                   style={{marginTop: '1rem'}}
+                                   sx={{ mt: 2 }}
                                    error={'seat_number' in validationErrors}
                                    helperText={getValidationErrorText('seat_number')}
                                    value={seatNumber}
@@ -352,7 +375,7 @@ const CarFormData = ({editItem = null, successCallable}) => {
                                    label="License plate"
                                    variant="outlined"
                                    size="small"
-                                   style={{marginTop: '1rem'}}
+                                   sx={{ mt: 2 }}
                                    error={'license_plate' in validationErrors}
                                    helperText={getValidationErrorText('license_plate')}
                                    value={licensePlate}
@@ -513,6 +536,32 @@ const CarFormData = ({editItem = null, successCallable}) => {
                                 <FormHelperText error>{validationErrors.model_id}</FormHelperText>
                             }
                         </FormControl>
+
+                        {api.isSuperuser && <FormControl sx={{ mt: 2 }} error={'created_by_id' in validationErrors}>
+                            <InputLabel id="tenant-label">Tenant</InputLabel>
+                            <Select
+                                labelId="tenant-label"
+                                id="tenant"
+                                label="Tenant"
+                                size="small"
+                                value={tenant}
+                                onChange={handleTenantChange}
+                            >
+                                <MenuItem value={0}>
+                                    <Box sx={{ color: 'text.secondary' }}>
+                                        Select tenant
+                                    </Box>
+                                </MenuItem>
+                                {tenants.map(tenant => (
+                                    <MenuItem key={tenant.id} value={tenant.id}>
+                                        {`${tenant.first_name} ${tenant.last_name} (${tenant.email})`}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                            {'created_by_id' in validationErrors &&
+                                <FormHelperText error>{validationErrors.model_id}</FormHelperText>
+                            }
+                        </FormControl>}
                     </FormGroup>
                 </Box>
             )}
