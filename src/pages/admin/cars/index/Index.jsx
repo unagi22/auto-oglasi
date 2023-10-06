@@ -6,7 +6,7 @@ import {DataGrid, GridActionsCellItem} from "@mui/x-data-grid";
 import AlertDialog from "../../../../components/alert-dialog.jsx";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever.js";
 import {useEffect, useState} from "react";
-import {dataGridColumnsConfig} from "./config.js";
+import {dataGridColumnsConfig, multiTenancyColumns} from "./config.js";
 import EditIcon from "@mui/icons-material/Edit.js";
 import DeleteIcon from "@mui/icons-material/Delete.js";
 import {isEmpty} from "lodash";
@@ -62,7 +62,7 @@ const CarAdverts = () => {
         field: 'actions',
         type: 'actions',
         headerName: 'Actions',
-        width: 100,
+        width: 80,
         getActions: (params) => {
             return actions(params);
         },
@@ -156,7 +156,11 @@ const CarAdverts = () => {
     }, [paginationModel]);
 
     useEffect(() => {
-        setColumns([...columns, ...actionColumns])
+        if (api.isSuperuser) {
+            setColumns([...columns, ...multiTenancyColumns, ...actionColumns])
+        } else {
+            setColumns([...columns, ...actionColumns])
+        }
         fetchList();
     }, []);
 
