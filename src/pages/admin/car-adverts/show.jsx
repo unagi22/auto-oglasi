@@ -10,7 +10,7 @@ const CarAdvertFormData = ({advert}) => {
         console.log('carAdvert', advert)
     })
     return (
-        <Box sx={{ p: 3, my: 1 }}>
+        <Box sx={{ p: 3, my: 1, overflowX: 'scroll' }}>
             <FormGroup sx={{ mb: 2 }}>
                 <Card variant="outlined">
                     <Typography level="h1">{advert.title}</Typography>

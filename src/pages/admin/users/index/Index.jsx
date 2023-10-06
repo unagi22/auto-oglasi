@@ -126,7 +126,7 @@ const Users = () => {
     }
 
     function verifyEmail(id) {
-        api.post(`/admin/verify-email/${id}/`)
+        api.patch(`/admin/verify-email/${id}/`)
             .then(() => {
                 fetchList()
                 setAlerts(['Email verified successfully!', ...alerts])

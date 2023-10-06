@@ -134,7 +134,7 @@ const CarAdverts = () => {
     }
 
     function activateAdvert(id) {
-        api.post(`/car-adverts/${id}/activate/`)
+        api.patch(`/car-adverts/${id}/activate/`)
             .then(() => {
                 fetchList()
                 setAlerts(['Car advert successfully activated', ...alerts])
@@ -143,7 +143,7 @@ const CarAdverts = () => {
     }
 
     function deactivateAdvert(id) {
-        api.post(`/car-adverts/${id}/deactivate/`)
+        api.patch(`/car-adverts/${id}/deactivate/`)
             .then(() => {
                 fetchList()
                 setAlerts(['Car advert successfully deactivated', ...alerts])
