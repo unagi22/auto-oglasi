@@ -29,22 +29,27 @@ const Login = () => {
             })
             return '';
         } else {
-            return validationErrors[key] && validationErrors[key][0] || ''
+            return validationErrors[key] && validationErrors[key][0] || '';
         }
     };
 
-    const attemptLogin = async (event) => {
-        event.preventDefault();
+    const handleKeyPress = (event) => {
+        if (event.key === 'Enter') {
+            attemptLogin();
+        }
+    };
+
+    const attemptLogin = async () => {
         const data = {email, password};
-        const response = await api.obtainTokens(data)
+        const response = await api.obtainTokens(data);
         if (response) {
-            setValidationErrors(response)
+            setValidationErrors(response);
         }
     };
 
     return (
         <Box sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Box sx={{ px: 8, py: 4, border: '1px solid rgba(0,0,0,0.15)', borderRadius: '8px', width: '15%' }}>
+            <Box sx={{ px: 8, py: 4, border: '1px solid rgba(0,0,0,0.15)', borderRadius: '8px', width: '15%' }} onKeyPress={handleKeyPress}>
                 <Typography level="h3">Login</Typography>
                 <Box
                     component="form"
@@ -82,7 +87,7 @@ const Login = () => {
                     />
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mt: 3 }}>
-                    <Button variant="contained" onClick={attemptLogin}>Login</Button>
+                    <Button variant="contained" onClick={() => attemptLogin()}>Login</Button>
 
                     <Link to={"/registration"}>
                         <Button variant="outlined" color="secondary">Register</Button>
