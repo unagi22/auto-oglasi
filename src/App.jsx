@@ -6,7 +6,6 @@ import "./App.css";
 import Api from "./services/Api.js";
 import { Button, Popover } from "@mui/material";
 import { auto } from "@popperjs/core";
-import ResponsiveAppBar from "./components/navbar";
 import { Box } from "@mui/system";
 import { useState, useEffect } from "react";
 
