@@ -65,6 +65,7 @@ const Login = () => {
           border: "1px solid rgba(0,0,0,0.15)",
           borderRadius: "8px",
         }}
+        onKeyDown={handleKeyPress}
       >
         <Typography level="h3">Login</Typography>
         <Box
