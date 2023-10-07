@@ -221,7 +221,7 @@ const CarAdvertFormData = ({editItem = null, successCallable}) => {
                 </Tabs>
             </Box>
             {tabValue === 0 && (
-                <Box sx={{ p: 3, my: 1 }}>
+                <Box sx={{ px: 3, py: 1, my: 1 }}>
                     <FormGroup style={{ marginBottom: '2rem'}}>
                         <TextField id="title"
                                    label="Title"
@@ -258,7 +258,7 @@ const CarAdvertFormData = ({editItem = null, successCallable}) => {
                 </Box>
             )}
             {tabValue === 1 && (
-                <Box sx={{ p: 3, my: 1 }}>
+                <Box sx={{ px: 3, py: 1, my: 1 }}>
                     <FormGroup sx={{ mb: 2 }}>
                         <FormControl sx={{ mt: 2 }} error={'currency_id' in validationErrors}>
                             <InputLabel id="currency-label">
@@ -350,7 +350,7 @@ const CarAdvertFormData = ({editItem = null, successCallable}) => {
                 </Box>
             )}
             {tabValue === 2 && (
-                <Box sx={{ p: 3, my: 1, borderColor: 'error.main' }}>
+                <Box sx={{ px: 3, py: 1, my: 1, borderColor: 'error.main' }}>
                     <FormControl error={'images_data' in validationErrors}>
                         <ImageUploader
                             labelId="car-advert-images"
@@ -367,7 +367,7 @@ const CarAdvertFormData = ({editItem = null, successCallable}) => {
                     }
                 </Box>
             )}
-            <div style={{position: 'absolute', bottom: 0, right: 0, padding: '1rem 2rem', marginBottm: '16px', display: 'flex', justifyContent: 'flex-end'}}>
+            <div style={{ padding: '1rem 2rem', marginBottm: '16px', display: 'flex', justifyContent: 'flex-end'}}>
                 <Button variant="contained" onClick={handleSubmit}>Submit</Button>
             </div>
         </form>

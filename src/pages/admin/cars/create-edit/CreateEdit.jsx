@@ -293,7 +293,7 @@ const CarFormData = ({editItem = null, successCallable}) => {
                 </Tabs>
             </Box>
             {tabValue === 0 && (
-                <Box sx={{ p: 3, my: 1 }}>
+                <Box sx={{ px: 3, py: 1, my: 1 }}>
                     <FormGroup sx={{ mb: 2 }}>
                         <TextField id="manufacture-year"
                                    label="Manufacture year"
@@ -392,7 +392,7 @@ const CarFormData = ({editItem = null, successCallable}) => {
                 </Box>
             )}
             {tabValue === 1 && (
-                <Box sx={{ p: 3, my: 1 }}>
+                <Box sx={{ px: 3, py: 1, my: 1 }}>
                     <FormGroup sx={{ mb: 2 }}>
                         <FormControl sx={{ mt: 2 }} error={'body_type_id' in validationErrors}>
                             <InputLabel id="body-type-label">
@@ -566,12 +566,12 @@ const CarFormData = ({editItem = null, successCallable}) => {
                 </Box>
             )}
             {tabValue === 2 && (
-                <Box sx={{ p: 3, my: 1 }}>
+                <Box sx={{ px: 3, py: 1, my: 1 }}>
                     <ChipsArray chipsList={features} setSelectedIds={setFeatureIds} />
                 </Box>
             )}
             {tabValue === 3 && (
-                <Box sx={{ p: 3, my: 1, borderColor: 'error.main' }}>
+                <Box sx={{ px: 3, py: 1, my: 1, borderColor: 'error.main' }}>
                     <FormControl error={'images_data' in validationErrors}>
                         <ImageUploader
                             labelId="car-images"
@@ -588,7 +588,7 @@ const CarFormData = ({editItem = null, successCallable}) => {
                     }
                 </Box>
             )}
-            <Box style={{position: 'absolute', bottom: 0, right: 0, padding: '1rem 2rem', marginBottom: '8px', display: 'flex', justifyContent: 'flex-end'}}>
+            <Box style={{ padding: '1rem 2rem', marginBottom: '8px', display: 'flex', justifyContent: 'flex-end'}}>
                 <Button variant="contained" onClick={handleSubmit}>Submit</Button>
             </Box>
         </form>

@@ -32,8 +32,10 @@ export default function AppModal({
         variant="outlined"
         sx={{
           borderRadius: "md",
-          width: '50%',
+          minWidth: '50%',
           minHeight: '50%',
+          maxHeight: '80%',
+          overflowY: 'scroll',
           p: 3,
           boxShadow: "lg",
         }}

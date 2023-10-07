@@ -184,7 +184,7 @@ const CreateEditUser = ({editItem = null, successCallable}) => {
                 </Tabs>
             </Box>
             {tabValue === 0 && (
-                <Box sx={{ p: 3, my: 1 }}>
+                <Box sx={{ px: 3, py: 1, my: 1 }}>
                     <FormGroup style={{ marginBottom: '2rem'}}>
                         <TextField id="first-name"
                                    label="First name"
@@ -230,7 +230,7 @@ const CreateEditUser = ({editItem = null, successCallable}) => {
                 </Box>
             )}
             {tabValue === 1 && (
-                <Box sx={{ p: 3, my: 1 }}>
+                <Box sx={{ px: 3, py: 1, my: 1 }}>
                     <FormGroup sx={{ mb: 2 }}>
                         <FormControl sx={{ mt: 2 }} error={'country' in validationErrors}>
                             <InputLabel id="currency-label">
@@ -260,7 +260,7 @@ const CreateEditUser = ({editItem = null, successCallable}) => {
                 </Box>
             )}
             {tabValue === 2 && (
-                <Box sx={{ p: 3, my: 1, borderColor: 'error.main' }}>
+                <Box sx={{ px: 3, py: 1, my: 1, borderColor: 'error.main' }}>
                     <FormControl error={'profile_picture' in validationErrors}>
                         <ImageUploader
                             labelId="profile-picture"
@@ -277,7 +277,7 @@ const CreateEditUser = ({editItem = null, successCallable}) => {
                     }
                 </Box>
             )}
-            <div style={{position: 'absolute', bottom: 0, right: 0, padding: '1rem 2rem', marginBottm: '16px', display: 'flex', justifyContent: 'flex-end'}}>
+            <div style={{ padding: '1rem 2rem', marginBottm: '16px', display: 'flex', justifyContent: 'flex-end'}}>
                 <Button variant="contained" onClick={handleSubmit}>Submit</Button>
             </div>
         </form>
